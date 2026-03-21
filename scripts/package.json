@@ -1,0 +1,11 @@
+{
+  "name": "linear-satisfacao-report",
+  "version": "1.0.0",
+  "description": "Script para gerar relatório de impacto em satisfação dos projetos do Linear",
+  "scripts": {
+    "relatorio": "node extrair-projetos-linear.js"
+  },
+  "dependencies": {
+    "@linear/sdk": "^29.0.0"
+  }
+}
