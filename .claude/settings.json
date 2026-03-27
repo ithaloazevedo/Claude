@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "@linear/mcp-server"],
       "env": {
-        "LINEAR_API_KEY": "lin_api_GaAD0ckpkDOCmMwUBgqeSRA3oc9NtfpdPoYifhgD"
+        "LINEAR_API_KEY": "${LINEAR_API_KEY}"
       }
     }
   }
