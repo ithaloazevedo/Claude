@@ -1,10 +1,46 @@
-# Exemplo: Iniciativa — Plataforma de Competições
+# Template: Iniciativa Estratégica
 
-Exemplo real reestruturado seguindo o template do Linear Method.
+Formato padrão para estruturar uma Iniciativa no Linear.
 
 ---
 
-## Antes (input bruto)
+## Template
+
+```markdown
+## Iniciativa: [Verbo no Imperativo] + [Objetivo Estratégico]
+
+**Timeframe:** [Q/Ano ou período]
+**Dono:** [Nome]
+
+---
+
+### 🎯 Visão e Objetivo
+[2-3 frases sobre a aposta estratégica e o porquê de agora]
+
+### 📈 OKRs e Metas Associadas
+| Métrica | Meta | Baseline atual |
+|---------|------|----------------|
+| [métrica] | [valor] | [valor atual se conhecido] |
+
+### 🗂️ Portfólio de Projetos
+- [ ] [Projeto 1 — descrição em uma linha]
+- [ ] [Projeto 2 — descrição em uma linha]
+- [ ] [Projeto N...]
+
+### 🔗 Dependências Externas
+- [Área/Time/Decisão]: [o que está pendente ou precisa acontecer primeiro]
+
+### 🚩 Milestones Centrais
+| Marco | Objetivo | Data-alvo |
+|-------|----------|-----------|
+| [nome do marco] | [o que valida] | [data] |
+```
+
+---
+
+## Exemplo Real: Plataforma de Competições
+
+### Antes (input bruto)
 
 ```
 O que faremos?
@@ -31,7 +67,7 @@ OKRs:
 
 ---
 
-## Depois (estruturado)
+### Depois (estruturado)
 
 ## Iniciativa: Expandir a Plataforma de Competições para sustentar engajamento e reduzir OPEX de suporte
 

@@ -142,101 +142,10 @@ Se o usuário não souber distinguir os níveis, use a hierarquia acima para gui
 
 ### Passo 3: Gerar Proposta
 
-Gere a proposta no template correspondente ao nível identificado.
+Gere a proposta no template correspondente ao nível identificado:
 
----
-
-#### Template: Iniciativa Estratégica
-
-```markdown
-## Iniciativa: [Verbo no Imperativo] + [Objetivo Estratégico]
-
-**Timeframe:** [Q/Ano ou período]
-**Dono:** [Nome]
-
----
-
-### 🎯 Visão e Objetivo
-[2-3 frases sobre a aposta estratégica e o porquê de agora]
-
-### 📈 OKRs e Metas Associadas
-| Métrica | Meta | Baseline atual |
-|---------|------|----------------|
-| [métrica] | [valor] | [valor atual se conhecido] |
-
-### 🗂️ Portfólio de Projetos
-- [ ] [Projeto 1 — descrição em uma linha]
-- [ ] [Projeto 2 — descrição em uma linha]
-- [ ] [Projeto N...]
-
-### 🔗 Dependências Externas
-- [Área/Time/Decisão]: [o que está pendente ou precisa acontecer primeiro]
-
-### 🚩 Milestones Centrais
-| Marco | Objetivo | Data-alvo |
-|-------|----------|-----------|
-| [nome do marco] | [o que valida] | [data] |
-```
-
----
-
-#### Template: Projeto Tático
-
-```markdown
-## Projeto: [Verbo no Imperativo] + [Nome do Projeto]
-
-**Iniciativa:** [Nome da Iniciativa vinculada]
-**Dono:** [Nome]
-**Prazo-alvo:** [Data ou período]
-
----
-
-### 🎯 Alinhamento Estratégico
-[Como este Projeto contribui para a Iniciativa — 1-2 frases]
-
-### 🧠 Contexto e Problema
-[O que está errado ou faltando hoje? Qual o impacto disso?]
-
-### 📋 Escopo
-✅ **Dentro:**
-- [O que faremos]
-
-🚫 **Fora:**
-- [O que NÃO faremos neste projeto — evita scope creep]
-
-### ✅ Critérios de Aceite
-- [ ] [Critério binário e testável 1]
-- [ ] [Critério binário e testável 2]
-
-### 🔗 Links
-- Figma: [Link ou "Aguardando Assets"]
-- Documentação: [Link se houver]
-- OKR relacionado: [Link se houver]
-
-### 🚩 Milestones do Projeto
-| Marco | Objetivo | Data-alvo |
-|-------|----------|-----------|
-| [nome] | [o que valida] | [data] |
-```
-
----
-
-#### Template: Milestone
-
-```markdown
-## Milestone: [Verbo no Imperativo] + [Nome do Marco]
-
-**Projeto:** [Nome do Projeto]
-**Data-alvo:** [Data]
-
----
-
-### 🎯 O que este marco representa
-[O que estará concluído ou validado quando este milestone for atingido]
-
-### 📌 Por que este marco importa
-[Decisão, validação de hipótese, entrega parcial para usuários, etc.]
-```
+- **Iniciativa**: use o template em [references/template-iniciativa.md](references/template-iniciativa.md)
+- **Projeto** ou **Milestone**: use os templates em [references/template-projetos.md](references/template-projetos.md)
 
 ---
 
@@ -284,46 +193,7 @@ Para o contexto completo sobre o fluxo de discovery e design: [references/discov
 
 ### Passo 2: Gerar Briefing
 
-```markdown
-## Briefing: [Verbo no Imperativo] + [Nome do Projeto]
-
-**Iniciativa:** [Nome da Iniciativa vinculada]
-**Fase:** Discovery
-**Dono:** [Nome]
-**Período de discovery:** [Data início → Data do milestone de validação]
-
----
-
-### 🎯 Problema
-[O que está errado ou faltando hoje. Por que isso importa agora. Qual o impacto de não resolver.]
-
-### 👥 Quem é afetado
-[Personas ou times impactados — quem sente o problema diariamente]
-
-### 🔍 Questões em aberto (a responder no discovery)
-- [ ] [Pergunta que o discovery precisa responder 1]
-- [ ] [Pergunta que o discovery precisa responder 2]
-- [ ] [Pergunta que o discovery precisa responder 3]
-
-### ✅ Critérios de saída do discovery
-Para o projeto avançar para build, precisamos ter:
-- [ ] Direção de design validada com [stakeholder]
-- [ ] Escopo fechado (dentro e fora definidos)
-- [ ] Spec completa aprovada
-
-### 🚫 Fora de Escopo (o que já sabemos que não faremos)
-- [Item fora de escopo já conhecido]
-
-### 🚩 Milestones
-| Marco | Objetivo | Data-alvo |
-|-------|----------|-----------|
-| Validar direção de design | Aprovar direção antes de detalhar — ponto de go/no-go | [data] |
-| Spec aprovada para build | Escopo fechado, engenharia pode iniciar planejamento | [data] |
-
-### 📋 Issues sugeridas para o Designer iniciar
-- [ ] `Explorar direções de design para [funcionalidade]`
-- [ ] `Validar protótipo com [usuários/stakeholder]`
-```
+Use o template em [references/template-brief.md](references/template-brief.md).
 
 ### Passo 3: Iterar e Refinar
 
@@ -424,7 +294,7 @@ Exiba:
 1. **A hierarquia** Iniciativa → Projeto → Milestone com a pergunta que cada nível responde.
 2. **A regra de ouro de títulos** com exemplos bons e ruins.
 3. **Os anti-patterns mais comuns** (baseados em [references/anti-pattern.md](references/anti-pattern.md)).
-4. **Exemplos reais** de Iniciativa e Projeto bem estruturados (baseados nos arquivos em `references/exemplos-*`).
+4. **Exemplos reais** de Iniciativa e Projeto bem estruturados (baseados em [references/template-iniciativa.md](references/template-iniciativa.md) e [references/template-projetos.md](references/template-projetos.md)).
 5. **Lembrete de escopo**: Este skill não cobre issues e sub-issues — para isso, use `linear-issues`.
 
 ---
@@ -451,8 +321,9 @@ Exemplos:
 | [references/dicionario.md](references/dicionario.md) | Regra de ouro de títulos, dicionário de verbos, templates e formatação |
 | [references/anti-pattern.md](references/anti-pattern.md) | Anti-patterns comuns em títulos e descrições |
 | [references/linear-method.md](references/linear-method.md) | Princípios do Linear Method (documentação oficial) |
-| [references/exemplos-iniciativas/](references/exemplos-iniciativas/) | Exemplos reais de Iniciativas bem estruturadas |
-| [references/exemplos-projetos/](references/exemplos-projetos/) | Exemplos reais de Projetos bem estruturados |
+| [references/template-iniciativa.md](references/template-iniciativa.md) | Template e exemplo real de Iniciativa Estratégica |
+| [references/template-brief.md](references/template-brief.md) | Template de Briefing para projetos em discovery |
+| [references/template-projetos.md](references/template-projetos.md) | Templates e exemplo real de Projeto Tático e Milestone |
 | [references/discovery-e-design.md](references/discovery-e-design.md) | Fluxo de discovery e design: briefing vs. spec, issues do Designer, estrutura de milestones por fase |
 | [references/artigos-margato.md](references/artigos-margato.md) | Direcional estratégico sobre o papel do PM — o que se espera de quem escreve specs no nível de iniciativa |
 

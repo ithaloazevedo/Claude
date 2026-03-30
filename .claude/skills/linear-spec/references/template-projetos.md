@@ -1,10 +1,72 @@
-# Exemplo: Projeto — Acompanhamento do Professor
+# Template: Projeto Tático e Milestone
 
-Exemplo real reestruturado seguindo o template do Linear Method.
+Formatos padrão para estruturar um Projeto e seus Milestones no Linear.
 
 ---
 
-## Antes (input bruto)
+## Template: Projeto Tático
+
+```markdown
+## Projeto: [Verbo no Imperativo] + [Nome do Projeto]
+
+**Iniciativa:** [Nome da Iniciativa vinculada]
+**Dono:** [Nome]
+**Prazo-alvo:** [Data ou período]
+
+---
+
+### 🎯 Alinhamento Estratégico
+[Como este Projeto contribui para a Iniciativa — 1-2 frases]
+
+### 🧠 Contexto e Problema
+[O que está errado ou faltando hoje? Qual o impacto disso?]
+
+### 📋 Escopo
+✅ **Dentro:**
+- [O que faremos]
+
+🚫 **Fora:**
+- [O que NÃO faremos neste projeto — evita scope creep]
+
+### ✅ Critérios de Aceite
+- [ ] [Critério binário e testável 1]
+- [ ] [Critério binário e testável 2]
+
+### 🔗 Links
+- Figma: [Link ou "Aguardando Assets"]
+- Documentação: [Link se houver]
+- OKR relacionado: [Link se houver]
+
+### 🚩 Milestones do Projeto
+| Marco | Objetivo | Data-alvo |
+|-------|----------|-----------|
+| [nome] | [o que valida] | [data] |
+```
+
+---
+
+## Template: Milestone
+
+```markdown
+## Milestone: [Verbo no Imperativo] + [Nome do Marco]
+
+**Projeto:** [Nome do Projeto]
+**Data-alvo:** [Data]
+
+---
+
+### 🎯 O que este marco representa
+[O que estará concluído ou validado quando este milestone for atingido]
+
+### 📌 Por que este marco importa
+[Decisão, validação de hipótese, entrega parcial para usuários, etc.]
+```
+
+---
+
+## Exemplo Real: Acompanhamento do Professor
+
+### Antes (input bruto)
 
 ```
 Resumo: Garantir visibilidade total para os professores sobre o progresso das suas turmas
@@ -27,7 +89,7 @@ Critérios de aceite:
 
 ---
 
-## Depois (estruturado)
+### Depois (estruturado)
 
 ## Projeto: Garantir visibilidade do professor sobre envios das equipes nas competições
 
