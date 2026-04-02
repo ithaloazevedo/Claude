@@ -15,11 +15,11 @@ Formatos padrão para estruturar um Projeto e seus Milestones no Linear.
 
 ---
 
-### 🎯 Alinhamento Estratégico
-[Como este Projeto contribui para a Iniciativa — 1-2 frases]
+### 🎯 Objetivo (O quê?)
+[Como este Projeto contribui para a Iniciativa]
 
-### 🧠 Contexto e Problema
-[O que está errado ou faltando hoje? Qual o impacto disso?]
+### 🧠 Contexto (Por quê?)
+[O que está errado ou faltando hoje? Qual o impacto disso? Quais dores e problema queremos resolver?]
 
 ### 📋 Escopo
 ✅ **Dentro:**

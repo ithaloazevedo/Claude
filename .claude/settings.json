@@ -13,6 +13,10 @@
       "env": {
         "NOTION_API_KEY": "${NOTION_API_KEY}"
       }
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "figma-developer-mcp", "--figma-api-key=${FIGMA_API_KEY}", "--stdio"]
     }
   }
 }
