@@ -386,6 +386,61 @@
 
 ## Notas para o Agente Gerador de Personas
 
+### Eixos de variação da persona
+
+Cada persona é definida pela combinação de **6 eixos**. Todos devem ser explicitados no perfil antes de gerar as respostas.
+
+#### Eixo 1 — Faixa etária
+| Valor | Características de linguagem e comportamento |
+|---|---|
+| 8–9 anos | Vocabulário simples, frases curtas, emoções diretas, pouca autoconsciência sobre UX |
+| 10–11 anos | Começa a comparar com outros apps, consegue descrever frustrações com mais detalhe |
+| 12–13 anos | Opiniões mais formadas, usa gírias, compara com redes sociais e jogos ativamente |
+| 14–15 anos | Pensamento mais crítico, descreve problemas com precisão, pode usar termos como "interface" |
+
+#### Eixo 2 — Experiência com tecnologia
+| Valor | Impacto nas respostas |
+|---|---|
+| Nunca usou computador | Não distingue menu de botão, pede ajuda com frequência, desiste rápido |
+| Só celular | Estranha comportamentos de desktop (hover, menus dropdown), prefere toque |
+| Usa computador às vezes | Navega com alguma autonomia, mas se perde em hierarquias profundas |
+| Usa computador regularmente | Tenta busca antes de explorar menu, tolerância média à fricção |
+| Heavy user digital | Usa atalhos, nota inconsistências de UX, opiniões técnicas mesmo sem saber o jargão |
+
+#### Eixo 3 — Frequência de uso do portal
+| Valor | Impacto nas respostas |
+|---|---|
+| Nunca acessou | P2 = "Nunca usei"; P6–P18 = "não sei / nunca usei"; P31–P33 neutras |
+| Acessa raramente | Impressões vagas, não formou opinião sólida, tende a "mais ou menos" |
+| Acessa semanalmente | Tem padrões de uso definidos, já sabe onde algumas coisas ficam |
+| Acessa todo dia | Opiniões fortes, frustrações específicas, tem workarounds próprios |
+
+#### Eixo 4 — Contexto de acesso
+| Valor | Impacto nas respostas |
+|---|---|
+| Só na escola | Acesso limitado, usa mais para tarefas obrigatórias, menor exploração livre |
+| Só em casa | Mais autonomia de tempo, mais exploração, mas sem suporte do professor no momento |
+| Escola + casa | Perfil mais completo, compara experiências entre os dois contextos |
+| Escola pública + zona rural | Conectividade instável pode aparecer em P22 (página demora a carregar) |
+
+#### Eixo 5 — Perfil comportamental / personalidade
+| Valor | Impacto direto nas respostas |
+|---|---|
+| Curioso/explorador | Tenta bastante antes de desistir (P20), responde P29 com ideias novas |
+| Impaciente | Desiste em < 1 min (P20), P23 = raiva/frustração, P34 tende a palavra negativa |
+| Tímido/dependente | P5 e P21 = pede ajuda para professor ou adulto, evita explorar sozinho |
+| Persistente/metódico | Não desiste fácil (P20), usa busca sistematicamente, P24 descreve tentativas múltiplas |
+| Indiferente | Usa só quando obrigado, P23 = indiferente, P30 não recomendaria com entusiasmo |
+
+#### Eixo 6 — Motivação de uso do portal
+| Valor | Impacto nas respostas |
+|---|---|
+| Obrigação (professor mandou) | Tom neutro a negativo, usa o mínimo necessário, P30 resposta curta e sem entusiasmo |
+| Curiosidade própria | Explora além do solicitado, P29 tem sugestões criativas, P30 recomendaria |
+| Gosta do conteúdo | Frustração maior quando não encontra (P23), P34 pode ser positiva apesar de dificuldades |
+
+---
+
 ### Distribuição sugerida das 350 personas
 
 | Eixo | Segmento | Qtd sugerida |
@@ -403,13 +458,43 @@
 | | Acessa raramente | 80 |
 | | Acessa semanalmente | 140 |
 | | Acessa todo dia | 100 |
+| Perfil comportamental | Curioso/explorador | 70 |
+| | Impaciente | 60 |
+| | Tímido/dependente | 60 |
+| | Persistente/metódico | 70 |
+| | Indiferente | 90 |
+| Motivação | Obrigação | 140 |
+| | Curiosidade própria | 100 |
+| | Gosta do conteúdo | 110 |
+
+---
+
+### Regras de combinação entre eixos (combinações incoerentes a evitar)
+
+| Combinação incoerente | Por quê |
+|---|---|
+| Heavy user digital + nunca teve acesso em casa | Improvável: heavy user pressupõe acesso frequente fora da escola |
+| 8–9 anos + heavy user digital | Raro: crianças de 8-9 anos raramente atingem esse nível de autonomia digital |
+| Nunca acessou o portal + acessa todo dia | Contradição direta |
+| Indiferente + gosta do conteúdo | Motivação e comportamento se contradizem |
+| Curioso/explorador + desiste em < 1 min | Contradição de personalidade |
+| Zona rural + acessa todo dia em casa | Alta improbabilidade por conectividade |
+
+---
 
 ### Regras de coerência para respostas sintéticas
-- Persona de 8–9 anos + nunca usou computador → respostas curtas, vocabulário simples, tendência a pedir ajuda, tempo de tentativa < 1 min
-- Persona heavy user + acessa todo dia → respostas mais detalhadas, usa busca ativamente, opiniões formadas sobre UX, menos emocional
-- Personas que nunca acessaram respondem P2 como "Nunca usei" e pulam P6–P18 com respostas neutras/não sei
-- P34 (palavra única) deve variar por satisfação geral: personas com P31 = 1 estrela tendem a palavras como "confuso", "difícil", "ruim"; personas com 5 estrelas tendem a "legal", "útil", "bom"
-- Perguntas abertas (P9, P15, P24, P29, P30) devem ter extensão proporcional à experiência da persona: iniciantes respondem em 1–2 frases, heavy users em 3–5 frases com detalhes específicos
+
+**Regras gerais:**
+- Personas que nunca acessaram: P2 = "Nunca usei", P6–P18 = "não sei / nunca usei", P31–P33 neutras ou "não uso há tempo suficiente"
+- P34 (palavra única) varia por P31: 1–2 estrelas → "confuso", "difícil", "chato", "ruim"; 4–5 estrelas → "legal", "útil", "bom", "fácil"
+- Extensão das respostas abertas (P9, P15, P24, P29, P30): iniciantes = 1–2 frases simples; heavy users = 3–5 frases com detalhes específicos
+
+**Regras por combinação de eixos:**
+- 8–9 anos + nunca usou computador + tímido → respostas curtíssimas, pede ajuda em tudo, P23 = "😅 sem problema, sempre tem alguém para ajudar"
+- 14–15 anos + heavy user + persistente + curiosidade própria → respostas longas, críticas precisas, P15 descreve o caminho passo a passo, P29 sugere features específicas
+- 12–13 anos + só celular + impaciente → estranha navegação desktop, P18 = "acontece muito", P20 = desiste em < 1 min, P34 = palavra negativa
+- Qualquer faixa + indiferente + obrigação → P30 (recomendação) curta e sem entusiasmo, P27 (sugestões) = "indiferente", P25 (favoritos) = "não usaria"
+- 10–11 anos + acessa semanalmente + curioso → P11 compara com YouTube ou jogos, P29 sugere gamificação ou algo que viu em outro app
 
 ---
 
