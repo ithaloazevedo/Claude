@@ -1,0 +1,190 @@
+{
+  "persona_1": {
+    "perfil": {
+      "id": 1,
+      "faixaEtaria": {
+        "valor": "8-9",
+        "descricao": "8 ou 9 anos",
+        "quantidade": 70
+      },
+      "experienciaTech": {
+        "valor": "nunca_computador",
+        "descricao": "Nunca usou computador",
+        "peso": 40
+      },
+      "frequenciaPortal": {
+        "valor": "todo_dia",
+        "descricao": "Acessa todo dia",
+        "peso": 100
+      },
+      "contextoAcesso": {
+        "valor": "escola_e_casa",
+        "descricao": "Escola e casa",
+        "peso": 180
+      },
+      "perfilComportamental": {
+        "valor": "curioso",
+        "descricao": "Curioso/explorador",
+        "peso": 70
+      },
+      "motivacao": {
+        "valor": "curiosidade",
+        "descricao": "Curiosidade própria",
+        "peso": 100
+      }
+    },
+    "respostas": {
+      "P1": "8 ou 9 anos",
+      "P2": "Uso quase todo dia",
+      "P3": "Computador ou notebook",
+      "P4": "Tanto na escola quanto em casa",
+      "P5": [
+        "Fico tentando sozinho até descobrir",
+        "Peço ajuda para o professor"
+      ],
+      "P6": [
+        "Uma lista de matérias ou disciplinas",
+        "Atividades ou tarefas para fazer"
+      ],
+      "P7": "🙂 Tranquilo, vou descobrindo",
+      "P8": "Mais ou menos claro",
+      "P9": "Acho que tem jogos escondidos em algum lugar mas nunca achei onde ficam. Já cliquei em tudo que aparece mas não encontrei.",
+      "P10": [
+        "Tem muitas opções e fico confuso",
+        "Já me acostumei, mas no começo era difícil"
+      ],
+      "P11": "Um pouco mais difícil",
+      "P12": "Fico clicando nos menus até achar",
+      "P13": "Às vezes encontro, às vezes não",
+      "P14": [
+        "Jogos e desafios",
+        "Aulas (videoaulas, explicações)",
+        "Atividades (exercícios, tarefas)"
+      ],
+      "P15": "Eu ia clicar em todas as matérias uma por uma até achar alguma coisa de programação. Se não achasse ia pedir pro professor me mostrar onde estava.",
+      "P16": "Não sei a diferença",
+      "P17": [
+        "Fico procurando onde clicar por um tempo",
+        "Volto para o início e começo de novo"
+      ],
+      "P18": "Sim, já aconteceu algumas vezes",
+      "P19": "Acontece às vezes",
+      "P20": "Tento por uns 2 ou 3 minutos",
+      "P21": [
+        "Peço ajuda para o professor",
+        "Tento de novo mais tarde"
+      ],
+      "P22": [
+        "Clico em vários lugares e não abre nada",
+        "Não entendo os nomes das seções"
+      ],
+      "P23": "😞 Chateado, queria ter encontrado",
+      "P24": "Uma vez a professora mandou fazer uma atividade de matemática no portal e eu fiquei clicando em tudo mas não achava. Tentei na busca mas não sabia escrever direito o nome e não apareceu nada. Aí pedi pra professora e ela me mostrou onde estava.",
+      "P25": "Com certeza, usaria sempre",
+      "P26": "Sim, muito — uso muito as mesmas coisas",
+      "P27": "Adoraria, me ajudaria a descobrir coisas novas",
+      "P28": [
+        "Poder fixar atalhos rápidos na tela inicial",
+        "Conteúdos separados por tipo (aulas, atividades, recursos, trilhas)",
+        "A tela inicial mostrar só o que é mais importante"
+      ],
+      "P29": "Queria que tivesse mais jogos e que ficasse mais fácil de achar as coisas. Às vezes tem muita coisa na tela e fico sem saber onde clicar.",
+      "P30": "Eu falaria que é legal porque tem as aulas e as atividades tudo num lugar só. Mas ia falar que no começo é um pouco difícil de achar as coisas mas depois a gente vai aprendendo.",
+      "P31": "⭐⭐⭐ Médio, tem coisas boas e ruins",
+      "P32": "Provavelmente indicaria",
+      "P33": "Um pouco mais fácil",
+      "P34": "curioso"
+    }
+  },
+  "persona_2": {
+    "perfil": {
+      "id": 2,
+      "faixaEtaria": {
+        "valor": "8-9",
+        "descricao": "8 ou 9 anos",
+        "quantidade": 70
+      },
+      "experienciaTech": {
+        "valor": "so_celular",
+        "descricao": "Usa só celular",
+        "peso": 80
+      },
+      "frequenciaPortal": {
+        "valor": "raramente",
+        "descricao": "Acessa raramente",
+        "peso": 80
+      },
+      "contextoAcesso": {
+        "valor": "escola_e_casa",
+        "descricao": "Escola e casa",
+        "peso": 180
+      },
+      "perfilComportamental": {
+        "valor": "timido",
+        "descricao": "Tímido/dependente",
+        "peso": 60
+      },
+      "motivacao": {
+        "valor": "obrigacao",
+        "descricao": "Obrigação (professor mandou)",
+        "peso": 140
+      }
+    },
+    "respostas": {
+      "P1": "8 ou 9 anos",
+      "P2": "Já usei algumas vezes",
+      "P3": "Celular",
+      "P4": "Tanto na escola quanto em casa",
+      "P5": [
+        "Peço ajuda para o professor",
+        "Peço ajuda para alguém em casa"
+      ],
+      "P6": [
+        "Não sei bem o que aparece, é confuso"
+      ],
+      "P7": "😕 Um pouco perdido",
+      "P8": "Não muito claro",
+      "P9": "Não sei direito o que tem lá dentro.",
+      "P10": [
+        "Não sei onde fica o menu"
+      ],
+      "P11": "Muito mais difícil de usar",
+      "P12": "Peço para alguém me mostrar onde fica",
+      "P13": "Nunca tentei usar a busca",
+      "P14": [
+        "Atividades (exercícios, tarefas)",
+        "Jogos e desafios"
+      ],
+      "P15": "Eu ia perguntar para o professor onde fica.",
+      "P16": "Não sei a diferença",
+      "P17": [
+        "Fico perdido e às vezes fecho o portal"
+      ],
+      "P18": "Sim, já aconteceu algumas vezes",
+      "P19": "Acontece bastante",
+      "P20": "Tento por uns 2 ou 3 minutos",
+      "P21": [
+        "Peço ajuda para o professor"
+      ],
+      "P22": [
+        "Clico em vários lugares e não abre nada",
+        "Não entendo os nomes das seções"
+      ],
+      "P23": "😞 Chateado, queria ter encontrado",
+      "P24": "Uma vez o professor mandou achar uma atividade e eu fiquei clicando mas não achei nada.",
+      "P25": "Talvez, dependeria de como funciona",
+      "P26": "Não sei se entendi como funcionaria",
+      "P27": "Seria útil às vezes",
+      "P28": [
+        "A tela inicial mostrar só o que é mais importante",
+        "Uma barra de busca mais visível e fácil de usar"
+      ],
+      "P29": "Queria que fosse mais fácil de usar no celular.",
+      "P30": "Eu falaria que tem que pedir ajuda para alguém porque é difícil.",
+      "P31": "⭐⭐⭐ Médio, tem coisas boas e ruins",
+      "P32": "Talvez indicaria, talvez não",
+      "P33": "Não uso há tempo suficiente para comparar",
+      "P34": "confuso"
+    }
+  }
+}

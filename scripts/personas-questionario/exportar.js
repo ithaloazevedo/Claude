@@ -97,7 +97,7 @@ function gerarRelatorio(dados) {
   const total = Object.keys(dados).length;
   const todos = Object.values(dados);
 
-  const porPerfil = (campo, valor) => ({ perfil }) => perfil[campo]?.valor === valor;
+  const porPerfil = (campo, valor) => (perfil) => perfil[campo]?.valor === valor;
 
   // Satisfação geral (P31)
   const topSatisfacao = topOpcoes(dados, 'P31');

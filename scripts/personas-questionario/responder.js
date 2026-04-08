@@ -1,5 +1,5 @@
 /**
- * Agente respondedor: para cada persona, envia o questionário ao Claude
+ * Agente respondedor: para cada persona, envia o questionário ao Claude Code CLI
  * e salva as respostas em output/respostas.json.
  *
  * Uso:
@@ -8,35 +8,13 @@
  *   node responder.js --retomar    → pula personas já processadas
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PERGUNTAS } from './questionario.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Carrega .env da raiz do projeto (dois níveis acima)
-const envPath = path.join(__dirname, '..', '..', '.env');
-if (fs.existsSync(envPath)) {
-  const envVars = fs.readFileSync(envPath, 'utf-8').split('\n');
-  for (const linha of envVars) {
-    const [chave, ...resto] = linha.split('=');
-    if (chave && resto.length && !process.env[chave.trim()]) {
-      process.env[chave.trim()] = resto.join('=').trim();
-    }
-  }
-}
-
-// ─── Config ───────────────────────────────────────────────────────────────────
-
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-if (!ANTHROPIC_API_KEY) {
-  console.error('❌ ANTHROPIC_API_KEY não encontrada. Adicione ao arquivo .env na raiz do projeto.');
-  process.exit(1);
-}
-
-const cliente = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 const PERSONAS_PATH = path.join(__dirname, 'output', 'personas.json');
 const RESPOSTAS_PATH = path.join(__dirname, 'output', 'respostas.json');
@@ -48,9 +26,18 @@ const limiteIdx = args.indexOf('--limite');
 const LIMITE = limiteIdx !== -1 ? parseInt(args[limiteIdx + 1]) : null;
 const RETOMAR = args.includes('--retomar');
 
-// ─── Prompt do sistema ────────────────────────────────────────────────────────
+// ─── Prompt completo ──────────────────────────────────────────────────────────
 
-function buildSystemPrompt(persona) {
+function buildPrompt(persona) {
+  const perguntas = PERGUNTAS.map(p => {
+    if (p.tipo === 'aberta') {
+      return `${p.id}. ${p.texto}\n(Resposta livre)`;
+    }
+    const opcoes = p.opcoes.map((o, i) => `  ${i + 1}. ${o}`).join('\n');
+    const tipoLabel = p.tipo === 'multipla_escolha' ? '(pode escolher mais de uma)' : '(escolha uma)';
+    return `${p.id}. ${p.texto} ${tipoLabel}\n${opcoes}`;
+  }).join('\n\n');
+
   return `Você é um(a) aluno(a) do Portal Arcoplus (marca Nave à Vela), um portal educacional escolar.
 
 SEU PERFIL:
@@ -61,66 +48,81 @@ SEU PERFIL:
 - Perfil comportamental: ${persona.perfilComportamental.descricao}
 - Motivação de uso: ${persona.motivacao.descricao}
 
-INSTRUÇÕES PARA RESPONDER:
-1. Responda SEMPRE em primeira pessoa, como se fosse esse(a) aluno(a) respondendo um formulário escolar.
-2. Use vocabulário e complexidade adequados à faixa etária:
-   - 8-9 anos: frases muito curtas, palavras simples, sem termos técnicos
-   - 10-11 anos: frases médias, começa a comparar com outros apps
-   - 12-13 anos: pode usar gírias, compara com redes sociais e jogos
-   - 14-15 anos: pensamento mais crítico, descreve problemas com precisão
-3. Para perguntas de escolha única ou múltipla, responda APENAS com o texto exato da(s) opção(ões).
-4. Para perguntas abertas, responda de forma proporcional à experiência:
-   - Iniciantes (nunca usou / raramente acessa): 1-2 frases simples
-   - Heavy user / acessa todo dia: 3-5 frases com detalhes específicos
-5. Siga as regras de coerência do seu perfil:
+INSTRUÇÕES:
+1. Responda em primeira pessoa, como esse(a) aluno(a) respondendo um formulário escolar.
+2. Use vocabulário adequado à faixa etária (8-9 anos: frases curtas e simples; 14-15 anos: mais detalhado e crítico).
+3. Para escolha única ou múltipla: responda APENAS com o texto exato da(s) opção(ões).
+4. Para abertas: 1-2 frases se iniciante/raramente acessa; 3-5 frases se heavy user/acessa todo dia.
+5. Siga seu perfil comportamental:
    - Impaciente: desiste rápido, P20 = menos de 1 minuto, P23 = raiva/frustrado
-   - Tímido/dependente: pede ajuda em P5 e P21, evita explorar sozinho
-   - Curioso/explorador: tenta bastante, descreve tentativas múltiplas nas abertas
-   - Persistente/metódico: não desiste fácil, descreve o processo passo a passo
-   - Indiferente: respostas curtas, tom neutro, não recomendaria com entusiasmo
-6. Se "Nunca acessou" o portal: P2 = "Nunca usei", P6-P18 = "Nunca prestei atenção nisso" ou opções de "não sei", P31-P33 neutras.
+   - Tímido: pede ajuda em P5 e P21, evita explorar sozinho
+   - Curioso: tenta bastante, descreve tentativas nas abertas
+   - Persistente: não desiste fácil, descreve o processo passo a passo
+   - Indiferente: respostas curtas, tom neutro
+6. Se "Nunca acessou": P2 = "Nunca usei", P6-P18 = opções de "não sei/nunca", P31-P33 neutras.
+7. Para múltipla escolha, use array JSON. Para abertas e únicas, use string.
 
-FORMATO DE SAÍDA:
-Retorne um JSON válido com exatamente este formato:
+Retorne SOMENTE um JSON válido neste formato exato, sem texto antes ou depois:
 {
   "respostas": {
-    "P1": "resposta aqui",
-    "P2": "resposta aqui",
-    ...
-    "P34": "resposta aqui"
+    "P1": "resposta",
+    "P2": "resposta",
+    "P3": "resposta",
+    "P4": "resposta",
+    "P5": ["opção 1", "opção 2"],
+    "P6": ["opção 1"],
+    "P7": "resposta",
+    "P8": "resposta",
+    "P9": "resposta aberta",
+    "P10": ["opção 1"],
+    "P11": "resposta",
+    "P12": "resposta",
+    "P13": "resposta",
+    "P14": ["opção 1", "opção 2"],
+    "P15": "resposta aberta",
+    "P16": "resposta",
+    "P17": ["opção 1"],
+    "P18": "resposta",
+    "P19": "resposta",
+    "P20": "resposta",
+    "P21": ["opção 1"],
+    "P22": ["opção 1", "opção 2"],
+    "P23": "resposta",
+    "P24": "resposta aberta",
+    "P25": "resposta",
+    "P26": "resposta",
+    "P27": "resposta",
+    "P28": ["opção 1", "opção 2"],
+    "P29": "resposta aberta",
+    "P30": "resposta aberta",
+    "P31": "resposta",
+    "P32": "resposta",
+    "P33": "resposta",
+    "P34": "palavra"
   }
 }
 
-Para múltipla escolha, use array: "P5": ["opção 1", "opção 2"]
-Para abertas, use string simples.
-Não inclua nada fora do JSON.`;
+QUESTIONÁRIO:
+
+${perguntas}`;
 }
 
-function buildUserPrompt() {
-  const linhas = PERGUNTAS.map(p => {
-    if (p.tipo === 'aberta') {
-      return `${p.id}. ${p.texto}\n(Resposta livre)`;
-    }
-    const opcoes = p.opcoes.map((o, i) => `  ${i + 1}. ${o}`).join('\n');
-    const tipoLabel = p.tipo === 'multipla_escolha' ? '(pode escolher mais de uma)' : '(escolha uma)';
-    return `${p.id}. ${p.texto} ${tipoLabel}\n${opcoes}`;
-  });
-  return `Responda o questionário abaixo conforme seu perfil:\n\n${linhas.join('\n\n')}`;
-}
+// ─── Chamar Claude via CLI ────────────────────────────────────────────────────
 
-// ─── Chamar Claude ────────────────────────────────────────────────────────────
+function responderComoPersona(persona) {
+  const prompt = buildPrompt(persona);
 
-async function responderComoPersona(persona) {
-  const resposta = await cliente.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2048,
-    system: buildSystemPrompt(persona),
-    messages: [{ role: 'user', content: buildUserPrompt() }],
+  // Escapa o prompt para passar via stdin ao claude --print
+  const resultado = execSync(`claude --print`, {
+    input: prompt,
+    encoding: 'utf-8',
+    maxBuffer: 10 * 1024 * 1024,
+    timeout: 120_000,
   });
 
-  const texto = resposta.content[0].text.trim();
+  const texto = resultado.trim();
 
-  // Extrai JSON da resposta
+  // Extrai JSON da resposta (ignora texto extra se houver)
   const match = texto.match(/\{[\s\S]*\}/);
   if (!match) throw new Error(`JSON não encontrado na resposta da persona ${persona.id}`);
 
@@ -140,13 +142,12 @@ async function main() {
   const alvo = LIMITE ? personas.slice(0, LIMITE) : personas;
 
   // Carrega respostas existentes se --retomar
-  let respostasExistentes = {};
+  let resultados = {};
   if (RETOMAR && fs.existsSync(RESPOSTAS_PATH)) {
-    respostasExistentes = JSON.parse(fs.readFileSync(RESPOSTAS_PATH, 'utf-8'));
-    console.log(`↩️  Retomando: ${Object.keys(respostasExistentes).length} personas já processadas`);
+    resultados = JSON.parse(fs.readFileSync(RESPOSTAS_PATH, 'utf-8'));
+    console.log(`↩️  Retomando: ${Object.keys(resultados).length} personas já processadas`);
   }
 
-  const resultados = { ...respostasExistentes };
   let processadas = 0;
   let erros = 0;
 
@@ -154,30 +155,25 @@ async function main() {
     const chave = `persona_${persona.id}`;
 
     if (RETOMAR && resultados[chave]) {
-      console.log(`⏭️  Pulando persona ${persona.id} (já processada)`);
+      process.stdout.write(`⏭️  Pulando ${persona.id}\r`);
       continue;
     }
 
     try {
       process.stdout.write(`🤖 Persona ${persona.id}/${alvo.length} [${persona.faixaEtaria.descricao}, ${persona.perfilComportamental.descricao}]... `);
-      const respostas = await responderComoPersona(persona);
 
-      resultados[chave] = {
-        perfil: persona,
-        respostas,
-      };
+      const respostas = responderComoPersona(persona);
 
-      // Salva incrementalmente a cada persona
+      resultados[chave] = { perfil: persona, respostas };
+
+      // Salva incrementalmente
       fs.writeFileSync(RESPOSTAS_PATH, JSON.stringify(resultados, null, 2), 'utf-8');
       processadas++;
       console.log('✅');
 
-      // Pausa curta para não sobrecarregar a API
-      await new Promise(r => setTimeout(r, 300));
-
     } catch (err) {
       erros++;
-      console.log(`❌ Erro: ${err.message}`);
+      console.log(`❌ Erro: ${err.message.slice(0, 100)}`);
     }
   }
 
