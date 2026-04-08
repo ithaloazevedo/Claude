@@ -1,0 +1,16 @@
+{
+  "name": "personas-questionario",
+  "version": "1.0.0",
+  "description": "Gerador de 350 personas sintéticas e respostas ao questionário de encontrabilidade do Portal Arcoplus",
+  "type": "module",
+  "scripts": {
+    "gerar-personas": "node gerar-personas.js",
+    "responder": "node responder.js",
+    "exportar": "node exportar.js",
+    "pipeline": "node gerar-personas.js && node responder.js && node exportar.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "dotenv": "^16.0.0"
+  }
+}
