@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformação Digital I — Gestão de TI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* === THEME: PREMIUM === */
+        :root {
+            --bg-primary: #0F172A;
+            --bg-surface: #FFFFFF;
+            --bg-blue-light: #EFF6FF;
+            --bg-blue-mid: #DBEAFE;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --text-on-dark: #F9FAFB;
+            --accent: #3B82F6;
+            --accent-dark: #1D4ED8;
+            --accent-light: #93C5FD;
+            --purple: #8B5CF6;
+            --green: #16A34A;
+            --border: #E5E7EB;
+            --font: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --title-size: clamp(2.5rem, 6vw, 5.5rem);
+            --h2-size: clamp(1.75rem, 3.5vw, 3rem);
+            --h3-size: clamp(1.25rem, 2.2vw, 2rem);
+            --body-size: clamp(1.1rem, 1.8vw, 1.5rem);
+            --small-size: clamp(1rem, 1.4vw, 1.25rem);
+            --slide-padding: clamp(2rem, 5vw, 5rem);
+            --content-gap: clamp(0.75rem, 2vw, 1.75rem);
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* === RESET === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* === VIEWPORT BASE (mandatory) === */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw; height: 100vh; height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex; flex-direction: column;
+            position: relative;
+            font-family: var(--font);
+        }
+
+        .slide-content {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center;
+            max-height: 100%; overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        @media (max-height: 700px) {
+            :root { --slide-padding: clamp(1rem, 3vw, 2rem); --title-size: clamp(1.25rem, 4vw, 2.5rem); }
+        }
+        @media (max-height: 600px) {
+            :root { --slide-padding: clamp(0.75rem, 2vw, 1.5rem); }
+            .nav-dots, .keyboard-hint { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+        }
+
+        /* === ANIMATIONS === */
+        .reveal {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+        }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .reveal:nth-child(1) { transition-delay: 0.05s; }
+        .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .reveal:nth-child(3) { transition-delay: 0.25s; }
+        .reveal:nth-child(4) { transition-delay: 0.35s; }
+        .reveal:nth-child(5) { transition-delay: 0.45s; }
+        .reveal:nth-child(6) { transition-delay: 0.55s; }
+        .reveal:nth-child(7) { transition-delay: 0.65s; }
+        .reveal-blur {
+            opacity: 0; filter: blur(8px);
+            transition: opacity 0.8s var(--ease), filter 0.8s var(--ease);
+        }
+        .slide.visible .reveal-blur { opacity: 1; filter: blur(0); }
+
+        /* === PROGRESS BAR === */
+        .progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--accent); width: 0%; z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* === NAV DOTS === */
+        .nav-dots {
+            position: fixed; right: clamp(12px, 2vw, 24px); top: 50%;
+            transform: translateY(-50%); display: flex;
+            flex-direction: column; gap: 8px; z-index: 100;
+        }
+        .nav-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(0,0,0,0.2); cursor: pointer;
+            transition: all 0.3s ease; border: none;
+        }
+        .nav-dot.active { background: var(--accent); transform: scale(1.5); }
+        .nav-dot.dark-slide { background: rgba(255,255,255,0.3); }
+        .nav-dot.dark-slide.active { background: white; }
+
+        /* === ACT LABEL === */
+        .act-label {
+            font-size: var(--small-size); font-weight: 600;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--text-secondary); margin-bottom: 0.5rem;
+        }
+        .act-label.on-dark { color: rgba(255,255,255,0.45); }
+        .act-label.on-blue { color: rgba(59,130,246,0.7); }
+
+        /* === SLIDE TYPE: DARK (capa, impacto) === */
+        .slide-dark { background: var(--bg-primary); color: var(--text-on-dark); }
+        .slide-dark .slide-content { justify-content: flex-end; padding-bottom: clamp(3rem, 8vh, 6rem); }
+
+        .title-main {
+            font-size: var(--title-size); font-weight: 900;
+            line-height: 1.05; letter-spacing: -0.02em;
+            color: var(--text-on-dark);
+        }
+        .title-accent { color: var(--accent); }
+        .title-sub {
+            font-size: var(--h3-size); font-weight: 300;
+            color: rgba(255,255,255,0.55); margin-top: 0.75rem;
+            letter-spacing: 0.01em;
+        }
+        .meta-line {
+            display: flex; align-items: center; gap: 1.5rem;
+            margin-top: clamp(2rem, 4vh, 3.5rem);
+        }
+        .meta-chip {
+            font-size: var(--small-size); font-weight: 500;
+            padding: 0.35rem 0.85rem; border-radius: 99px;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.6); letter-spacing: 0.05em;
+        }
+        .grid-bg {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .glow-orb {
+            position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px);
+        }
+
+        /* === SLIDE TYPE: WHITE (explicativo) === */
+        .slide-white { background: var(--bg-surface); }
+        .slide-white .slide-content { justify-content: center; }
+
+        .slide-heading {
+            font-size: var(--h2-size); font-weight: 700;
+            color: var(--text-primary); letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .slide-heading .blue { color: var(--accent); }
+        .slide-body {
+            font-size: var(--body-size); color: var(--text-secondary);
+            line-height: 1.65; margin-top: var(--content-gap);
+        }
+        .slide-body strong { color: var(--text-primary); font-weight: 600; }
+        .divider {
+            width: 40px; height: 3px; background: var(--accent);
+            border-radius: 2px; margin: var(--content-gap) 0;
+        }
+
+        /* === SLIDE TYPE: BLUE (provocação) === */
+        .slide-blue { background: var(--bg-blue-light); }
+        .slide-blue .slide-content { justify-content: center; align-items: flex-start; }
+
+        .provocation-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: var(--accent); color: white;
+            font-size: var(--small-size); font-weight: 700;
+            padding: 0.3rem 0.8rem; border-radius: 99px;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            margin-bottom: var(--content-gap);
+        }
+        .provocation-question {
+            font-size: clamp(1.1rem, 3vw, 2.2rem); font-weight: 700;
+            color: var(--text-primary); line-height: 1.3;
+            letter-spacing: -0.02em; max-width: 800px;
+        }
+        .provocation-hint {
+            font-size: var(--body-size); color: var(--text-secondary);
+            margin-top: 1.5rem; font-style: italic;
+        }
+        .hand-raise {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: white; border: 1px solid var(--border);
+            border-radius: 8px; padding: 0.5rem 1rem;
+            font-size: var(--small-size); font-weight: 600;
+            color: var(--text-primary); margin-top: 1.25rem;
+        }
+
+        /* === TIMELINE === */
+        .timeline {
+            display: flex; align-items: center; gap: 0;
+            position: relative; margin-top: var(--content-gap);
+            overflow-x: auto; padding-bottom: 0.5rem;
+        }
+        .timeline-item {
+            display: flex; flex-direction: column; align-items: center;
+            flex: 1; min-width: clamp(80px, 12vw, 130px);
+        }
+        .timeline-dot {
+            width: clamp(28px, 3.5vw, 40px); height: clamp(28px, 3.5vw, 40px);
+            border-radius: 50%; background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: clamp(12px, 1.5vw, 16px); color: white; font-weight: 700;
+            position: relative; z-index: 1; flex-shrink: 0;
+        }
+        .timeline-dot.highlight { background: var(--accent); box-shadow: 0 0 0 6px rgba(59,130,246,0.15); }
+        .timeline-dot.today {
+            background: #111827; box-shadow: 0 0 0 6px rgba(17,24,39,0.1);
+            font-size: clamp(10px, 1.2vw, 14px);
+        }
+        .timeline-label {
+            font-size: clamp(0.8rem, 1.2vw, 1rem); font-weight: 600;
+            color: var(--text-primary); text-align: center;
+            margin-top: 0.4rem; line-height: 1.3;
+        }
+        .timeline-year { font-size: clamp(0.75rem, 1vw, 0.9rem); color: var(--text-secondary); }
+        .timeline-connector {
+            height: 2px; flex: 1; background: var(--border);
+            margin-bottom: 2rem; min-width: 20px;
+        }
+        .timeline-connector.done { background: var(--accent); }
+
+        /* === STEPS (3 níveis, pilares) === */
+        .steps { display: flex; gap: var(--content-gap); margin-top: var(--content-gap); }
+        .step {
+            flex: 1; padding: clamp(1rem, 2vw, 1.5rem);
+            border-radius: 12px; border: 1px solid var(--border);
+            position: relative;
+        }
+        .step-num {
+            font-size: var(--small-size); font-weight: 700;
+            color: white; background: var(--accent);
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+        .step-title { font-size: var(--body-size); font-weight: 700; color: var(--text-primary); }
+        .step-desc { font-size: var(--small-size); color: var(--text-secondary); margin-top: 0.35rem; line-height: 1.5; }
+        .step.active { border-color: var(--accent); background: var(--bg-blue-light); }
+        .step.active .step-num { background: var(--accent-dark); }
+        .step-arrow {
+            display: flex; align-items: center; color: var(--border);
+            font-size: clamp(14px, 2vw, 20px); flex-shrink: 0;
+            margin-top: -0.5rem;
+        }
+
+        /* === COMPARISON TABLE === */
+        .compare-table {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1px; background: var(--border);
+            border-radius: 12px; overflow: hidden;
+            margin-top: var(--content-gap);
+            border: 1px solid var(--border);
+        }
+        .compare-header {
+            padding: clamp(0.6rem, 1.5vw, 1rem) clamp(0.75rem, 2vw, 1.25rem);
+            font-size: var(--small-size); font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .compare-header.old { background: #F9FAFB; color: #EF4444; }
+        .compare-header.new { background: var(--bg-blue-light); color: var(--accent); }
+        .compare-cell {
+            padding: clamp(0.5rem, 1.2vw, 0.875rem) clamp(0.75rem, 2vw, 1.25rem);
+            font-size: var(--small-size); background: white; line-height: 1.5;
+            color: var(--text-primary);
+        }
+        .compare-cell.old { border-right: 1px solid var(--border); }
+        .compare-row-label {
+            grid-column: span 2;
+            padding: 0.35rem clamp(0.75rem, 2vw, 1.25rem);
+            font-size: clamp(0.75rem, 1vw, 0.9rem);
+            font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text-secondary);
+            background: #F9FAFB;
+        }
+
+        /* === CASE STUDIES === */
+        .case-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: var(--small-size); font-weight: 700;
+            padding: 0.3rem 0.85rem; border-radius: 99px;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            margin-bottom: calc(var(--content-gap) * 0.75);
+        }
+        .case-badge.c1 { background: #FEF2F2; color: #DC2626; }
+        .case-badge.c2 { background: #EFF6FF; color: var(--accent-dark); }
+        .case-badge.c3 { background: #F0FDF4; color: #16A34A; }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--content-gap); margin-top: var(--content-gap); }
+        .col-box {
+            padding: clamp(0.75rem, 2vw, 1.25rem);
+            border-radius: 10px; border: 1px solid var(--border);
+        }
+        .col-box.negative { background: #FEF2F2; border-color: #FECACA; }
+        .col-box.positive { background: var(--bg-blue-light); border-color: var(--accent-light); }
+        .col-box-label {
+            font-size: var(--small-size); font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+        }
+        .col-box.negative .col-box-label { color: #EF4444; }
+        .col-box.positive .col-box-label { color: var(--accent); }
+        .col-box p { font-size: var(--small-size); color: var(--text-primary); line-height: 1.6; }
+
+        /* === BULLET LIST === */
+        .bullet-list { list-style: none; display: flex; flex-direction: column; gap: clamp(0.4rem, 1vh, 0.75rem); margin-top: var(--content-gap); }
+        .bullet-list li {
+            display: flex; gap: 0.75rem; align-items: flex-start;
+            font-size: var(--body-size); color: var(--text-primary); line-height: 1.5;
+        }
+        .bullet-list li::before {
+            content: '→'; color: var(--accent); font-weight: 700;
+            flex-shrink: 0; margin-top: 0.05em;
+        }
+
+        /* === QUOTE / ANCHOR SLIDE === */
+        .anchor-quote {
+            font-size: clamp(1.1rem, 2.8vw, 2rem); font-weight: 700;
+            color: var(--text-primary); line-height: 1.35;
+            letter-spacing: -0.02em; font-style: italic;
+            border-left: 4px solid var(--accent);
+            padding-left: clamp(1rem, 2.5vw, 2rem);
+        }
+        .anchor-questions {
+            margin-top: var(--content-gap);
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .anchor-q {
+            font-size: var(--body-size); color: var(--text-secondary);
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .anchor-q::before { content: '→'; color: var(--accent); font-weight: 700; }
+
+        /* === IMPACT SLIDE === */
+        .slide-impact { background: var(--bg-primary); }
+        .impact-text {
+            font-size: clamp(2rem, 6vw, 5rem); font-weight: 900;
+            color: var(--text-on-dark); line-height: 1.1;
+            letter-spacing: -0.03em; text-align: center;
+        }
+        .impact-text .not { color: var(--accent); }
+
+        /* === ICONS grid (examples) === */
+        .icon-grid { display: flex; gap: clamp(0.75rem, 2vw, 1.5rem); margin-top: var(--content-gap); flex-wrap: wrap; }
+        .icon-card {
+            flex: 1; min-width: clamp(100px, 20vw, 160px);
+            padding: clamp(0.75rem, 1.5vw, 1.25rem);
+            border: 1px solid var(--border); border-radius: 10px;
+            background: #FAFAFA;
+        }
+        .icon-card-emoji { font-size: clamp(1.25rem, 2.5vw, 2rem); margin-bottom: 0.5rem; }
+        .icon-card-title { font-size: var(--small-size); font-weight: 700; color: var(--text-primary); }
+        .icon-card-desc { font-size: clamp(0.85rem, 1.2vw, 1.05rem); color: var(--text-secondary); margin-top: 0.25rem; line-height: 1.5; }
+
+        /* === SYNTHESIS TABLE (3 cases) === */
+        .synthesis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-top: var(--content-gap); }
+        .syn-header { padding: clamp(0.5rem, 1.2vw, 0.875rem); font-size: var(--small-size); font-weight: 700; text-align: center; }
+        .syn-header.c1 { background: #FEF2F2; color: #DC2626; }
+        .syn-header.c2 { background: #EFF6FF; color: var(--accent-dark); }
+        .syn-header.c3 { background: #F0FDF4; color: #16A34A; }
+        .syn-row-label { background: #F9FAFB; padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.5rem, 1.2vw, 0.875rem); font-size: clamp(0.75rem, 1vw, 0.9rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); grid-column: span 3; }
+        .syn-cell { background: white; padding: clamp(0.4rem, 1vw, 0.75rem) clamp(0.5rem, 1.2vw, 0.875rem); font-size: clamp(0.85rem, 1.2vw, 1.05rem); color: var(--text-primary); line-height: 1.5; }
+
+        /* === SCRUM PILLARS === */
+        .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--content-gap); margin-top: var(--content-gap); }
+        .pillar { border-radius: 12px; padding: clamp(1rem, 2vw, 1.5rem); border: 1px solid var(--border); }
+        .pillar.t { background: #EFF6FF; border-color: var(--accent-light); }
+        .pillar.i { background: #F0FDF4; border-color: #86EFAC; }
+        .pillar.a { background: #FFF7ED; border-color: #FED7AA; }
+        .pillar-emoji { font-size: clamp(1.25rem, 2.5vw, 2rem); margin-bottom: 0.5rem; }
+        .pillar-title { font-size: var(--body-size); font-weight: 700; color: var(--text-primary); }
+        .pillar-sub { font-size: var(--small-size); color: var(--text-secondary); margin-top: 0.25rem; line-height: 1.5; }
+
+        /* === EXIT SLIDE === */
+        .slide-exit { background: #F0FDF4; }
+        .exit-question {
+            font-size: clamp(1.1rem, 2.8vw, 2rem); font-weight: 700;
+            color: #166534; line-height: 1.35; letter-spacing: -0.02em;
+        }
+        .exit-hint { font-size: var(--body-size); color: #4B5563; margin-top: 1.25rem; line-height: 1.65; }
+
+        /* === KEYBOARD HINT === */
+        .keyboard-hint {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            font-size: 11px; color: rgba(0,0,0,0.25);
+            font-family: var(--font); letter-spacing: 0.05em;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots"></nav>
+<div class="keyboard-hint">← → setas para navegar</div>
+
+<!-- ============================================================
+     ATO 1 — A CONEXÃO
+     ============================================================ -->
+
+<!-- SLIDE 1: CAPA -->
+<section class="slide slide-dark" data-dark="true">
+    <div class="grid-bg"></div>
+    <div class="glow-orb" style="width:400px;height:400px;top:-100px;right:-100px;background:rgba(59,130,246,0.12);"></div>
+    <div class="glow-orb" style="width:300px;height:300px;bottom:0;left:-50px;background:rgba(139,92,246,0.08);"></div>
+    <div class="slide-content">
+        <p class="act-label on-dark reveal">Gestão de TI · 2026/1 · Prof. Ithalo Azevedo</p>
+        <h1 class="title-main reveal">
+            Transformação<br>
+            <span class="title-accent">Digital</span>
+        </h1>
+        <p class="title-sub reveal">O Fim do Caminho da Vaca</p>
+        <div class="meta-line reveal">
+            <span class="meta-chip">Aula 11</span>
+            <span class="meta-chip">03 de março de 2026</span>
+            <span class="meta-chip">TD I — A Transição da TI Estratégica</span>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 2: LINHA DO TEMPO -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Ato 1 — A Conexão</p>
+        <h2 class="slide-heading reveal">Até aqui, fizemos uma viagem no tempo.</h2>
+        <p class="slide-body reveal">Cada aula foi um degrau. Mas para quê?</p>
+        <div class="timeline reveal">
+            <div class="timeline-item">
+                <div class="timeline-dot">🔥</div>
+                <div class="timeline-label">Crise do<br>Software</div>
+                <div class="timeline-year">1968</div>
+            </div>
+            <div class="timeline-connector done"></div>
+            <div class="timeline-item">
+                <div class="timeline-dot">📉</div>
+                <div class="timeline-label">Cascata &<br>Modelo V</div>
+                <div class="timeline-year">1970s</div>
+            </div>
+            <div class="timeline-connector done"></div>
+            <div class="timeline-item">
+                <div class="timeline-dot">📜</div>
+                <div class="timeline-label">Manifesto<br>Ágil</div>
+                <div class="timeline-year">2001</div>
+            </div>
+            <div class="timeline-connector done"></div>
+            <div class="timeline-item">
+                <div class="timeline-dot">⚡</div>
+                <div class="timeline-label">Metodologias<br>Ágeis</div>
+            </div>
+            <div class="timeline-connector done"></div>
+            <div class="timeline-item">
+                <div class="timeline-dot">🏃</div>
+                <div class="timeline-label">Scrum</div>
+            </div>
+            <div class="timeline-connector"></div>
+            <div class="timeline-item">
+                <div class="timeline-dot today">→</div>
+                <div class="timeline-label" style="color:var(--accent);font-weight:700;">Hoje</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 3: PROVOCAÇÃO -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <div class="provocation-badge reveal">🙋 Pergunta</div>
+        <p class="provocation-question reveal">Para que serve toda essa agilidade?</p>
+        <p class="provocation-hint reveal">Pense nas últimas semanas. Crise do Software, Manifesto, Scrum... qual é o destino de tudo isso?</p>
+        <div class="hand-raise reveal">✋ Responda antes de virar o slide</div>
+    </div>
+</section>
+
+<!-- SLIDE 4: ÂNCORA 1 -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Resposta</p>
+        <h2 class="slide-heading reveal">A agilidade é o meio,<br><span class="blue">não o fim.</span></h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">O Scrum nos ensinou a construir software com <strong>qualidade, transparência e adaptação</strong>. Mas a pergunta que o mercado faz é outra:<br><br><strong>Para qual transformação você está construindo?</strong></p>
+    </div>
+</section>
+
+<!-- SLIDE 5: ÂNCORA CONCEITUAL DA AGILIDADE -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Âncora do semestre</p>
+        <div class="anchor-quote reveal">"Agilidade é buscar, no menor tempo possível, validar uma hipótese."</div>
+        <div class="anchor-questions reveal">
+            <p class="anchor-q">Qual é a hipótese da Netflix?</p>
+            <p class="anchor-q">Qual é a hipótese do Nubank?</p>
+            <p class="anchor-q">Qual é a sua?</p>
+        </div>
+        <p class="slide-body reveal" style="margin-top:1.5rem;">Hoje vamos entender para que servem essas hipóteses no mundo real.</p>
+    </div>
+</section>
+
+<!-- SLIDE 6: PROVOCAÇÃO DE TRANSIÇÃO -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <div class="provocation-badge reveal">🙋 Levantamento de mão</div>
+        <p class="provocation-question reveal">Toda empresa que usa tecnologia está se transformando digitalmente?</p>
+        <p class="provocation-hint reveal">Sim ou Não? Levante a mão. Não vire o slide ainda.</p>
+        <div class="hand-raise reveal">✋ Sim &nbsp;&nbsp;|&nbsp;&nbsp; ✋ Não</div>
+    </div>
+</section>
+
+<!-- ============================================================
+     ATO 2 — DEFININDO O TERRENO
+     ============================================================ -->
+
+<!-- SLIDE 7: PROVOCAÇÃO PREFEITURA -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <p class="act-label on-blue reveal">Ato 2 — Definindo o Terreno</p>
+        <div class="provocation-badge reveal">🙋 Caso Real</div>
+        <p class="provocation-question reveal">Uma prefeitura pega um formulário de 10 páginas, escaneia, vira PDF e coloca no site para o cidadão baixar, imprimir, preencher e levar na secretaria.<br><br>Isso é Transformação Digital?</p>
+        <div class="hand-raise reveal">✋ Sim &nbsp;&nbsp;|&nbsp;&nbsp; ✋ Não</div>
+    </div>
+</section>
+
+<!-- SLIDE 8: DIGITIZAÇÃO -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Conceito 1</p>
+        <h2 class="slide-heading reveal">Digitização</h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">Converter algo <strong>físico ou analógico</strong> em formato digital. O processo em si não muda — só o suporte.</p>
+        <ul class="bullet-list reveal">
+            <li>Escanear um documento</li>
+            <li>Digitalizar uma foto de papel</li>
+            <li>Converter um vinil em MP3</li>
+            <li>Pegar um formulário de 10 páginas e transformar em PDF</li>
+        </ul>
+        <p class="slide-body reveal" style="margin-top:1rem;"><strong>O processo continuou igual. Apenas o suporte mudou.</strong></p>
+    </div>
+</section>
+
+<!-- SLIDE 9: 3 NÍVEIS -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Os 3 Degraus</p>
+        <h2 class="slide-heading reveal">Não é tudo a mesma coisa.</h2>
+        <div class="steps reveal">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-title">Digitização</div>
+                <div class="step-desc">Analógico → Digital. Só o suporte muda. O processo permanece igual.</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-title">Digitalização</div>
+                <div class="step-desc">Usar o digital para <em>melhorar</em> um processo existente. O processo muda, mas o modelo de negócio não.</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step active">
+                <div class="step-num">3</div>
+                <div class="step-title">Transformação Digital</div>
+                <div class="step-desc"><strong>Repensar o modelo de negócio</strong> com tecnologia como alavanca. A pergunta muda.</div>
+            </div>
+        </div>
+        <p class="slide-body reveal" style="margin-top:1rem;">A maioria das empresas está no degrau 2 e acha que chegou no topo.</p>
+    </div>
+</section>
+
+<!-- SLIDE 10: PROVOCAÇÃO DEGRAUS -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <div class="provocation-badge reveal">🙋 Reflexão</div>
+        <p class="provocation-question reveal">Então o que diferencia digitalização de Transformação Digital?</p>
+        <p class="provocation-hint reveal">Pense na diferença entre os degraus 2 e 3. O que muda de verdade?</p>
+        <p class="slide-body reveal" style="margin-top:1.5rem;color:var(--text-secondary);font-style:italic;">"Na digitalização você melhora o que existe.<br>Na TD você questiona se o que existe deveria continuar existindo."</p>
+    </div>
+</section>
+
+<!-- SLIDE 11: CAMINHO DA VACA -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Metáfora</p>
+        <h2 class="slide-heading reveal">Pavimentando o <span class="blue">Caminho da Vaca</span></h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">Uma vaca atravessa o pasto todo dia pelo mesmo caminho torto. Com o tempo, forma uma trilha. Alguém pavimenta essa trilha com asfalto.<br><br><strong>A estrada ficou melhor — mas o trajeto ainda é da vaca.</strong></p>
+        <p class="slide-body reveal" style="margin-top:1rem;">Você não otimizou o trajeto. Apenas jogou asfalto nas curvas tortas.<br><br>A Transformação Digital exige <strong>questionar o trajeto</strong>, não apenas asfaltá-lo.</p>
+    </div>
+</section>
+
+<!-- SLIDE 12: O QUE É TD -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Definição</p>
+        <h2 class="slide-heading reveal">Então o que É<br><span class="blue">Transformação Digital?</span></h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">Repensar o <strong>modelo de negócio</strong> e a <strong>jornada do usuário</strong> usando a tecnologia como alavanca — não como fim.</p>
+        <div class="pillars reveal">
+            <div class="pillar t">
+                <div class="pillar-emoji">👥</div>
+                <div class="pillar-title">Pessoas</div>
+                <div class="pillar-sub">Cultura, mentalidade e capacitação</div>
+            </div>
+            <div class="pillar i">
+                <div class="pillar-emoji">⚙️</div>
+                <div class="pillar-title">Processos</div>
+                <div class="pillar-sub">Repensar fluxos, não digitalizá-los</div>
+            </div>
+            <div class="pillar a">
+                <div class="pillar-emoji">💻</div>
+                <div class="pillar-title">Tecnologia</div>
+                <div class="pillar-sub">A alavanca — nunca o fim</div>
+            </div>
+        </div>
+        <p class="slide-body reveal" style="margin-top:1rem;"><strong>TD não é projeto de TI. É mudança de como o negócio funciona.</strong></p>
+    </div>
+</section>
+
+<!-- ============================================================
+     ATO 3 — A GRANDE TRANSIÇÃO
+     ============================================================ -->
+
+<!-- SLIDE 13: PROVOCAÇÃO CEMITÉRIO -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <p class="act-label on-blue reveal">Ato 3 — A Grande Transição</p>
+        <div class="provocation-badge reveal">🙋 O Cemitério das Gigantes</div>
+        <p class="provocation-question reveal">Blockbuster. Kodak. Nokia.<br><br>Todas tinham departamento de TI, banco de dados, servidores, orçamento milionário. Por que morreram?</p>
+        <p class="provocation-hint reveal">Debate livre por 1 minuto.</p>
+    </div>
+</section>
+
+<!-- SLIDE 14: TI COMO SUPORTE -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">A Resposta</p>
+        <h2 class="slide-heading reveal">TI como <span style="color:#EF4444;">Centro de Custo</span></h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">A TI dessas empresas era boa. Só estava no lugar errado.</p>
+        <ul class="bullet-list reveal">
+            <li>Controla custos e apaga incêndios</li>
+            <li>Executa ordens do negócio</li>
+            <li>É chamada quando algo quebra</li>
+            <li>Serve o modelo de negócio que <em>já existe</em></li>
+        </ul>
+        <p class="slide-body reveal" style="margin-top:1rem;"><strong>Estavam servindo o negócio de hoje — em vez de inventar o negócio de amanhã.</strong></p>
+    </div>
+</section>
+
+<!-- SLIDE 15: PROVOCAÇÃO AMAZON -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <div class="provocation-badge reveal">🙋 Linha do tempo</div>
+        <p class="provocation-question reveal">Quando a Amazon virou uma empresa de tecnologia?</p>
+        <p class="provocation-hint reveal">A Amazon começou vendendo livros físicos. Hoje é a maior provedora de infraestrutura de nuvem do mundo (AWS). Em que momento ela deixou de ser uma livraria?</p>
+        <p class="slide-body reveal" style="margin-top:1.5rem;color:var(--text-secondary);font-style:italic;">Spoiler: ela nunca separou TI de negócio. Sempre foram a mesma coisa.</p>
+    </div>
+</section>
+
+<!-- SLIDE 16: TI ESTRATÉGICA -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">A Virada</p>
+        <h2 class="slide-heading reveal">TI como <span class="blue">Parceira Estratégica</span></h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">A virada não foi técnica. Foi de <strong>mentalidade</strong>.</p>
+        <ul class="bullet-list reveal">
+            <li>Antecipa problemas antes que virem incêndios</li>
+            <li>Propõe novos modelos de negócio</li>
+            <li>Participa das decisões estratégicas desde o início</li>
+            <li>Gera receita — não só economiza custo</li>
+        </ul>
+        <p class="slide-body reveal" style="margin-top:1rem;">A TI deixou de ser chamada para resolver problemas e passou a ser chamada para <strong>criar oportunidades</strong>.</p>
+    </div>
+</section>
+
+<!-- SLIDE 17: COMPARATIVO -->
+<section class="slide slide-white">
+    <div class="slide-content" style="padding-top:clamp(1rem,3vh,2rem);">
+        <p class="act-label reveal">Comparativo — slide de referência</p>
+        <h2 class="slide-heading reveal" style="font-size:clamp(1rem,2.5vw,1.75rem);">Centro de Custo vs. Parceira Estratégica</h2>
+        <div class="compare-table reveal">
+            <div class="compare-header old">❌ Centro de Custo</div>
+            <div class="compare-header new">✅ Parceira Estratégica</div>
+            <div class="compare-row-label">Papel</div>
+            <div class="compare-cell old">Suporte ao negócio existente</div>
+            <div class="compare-cell">Motor de novos negócios</div>
+            <div class="compare-row-label">Relação com o negócio</div>
+            <div class="compare-cell old">Subordinada — recebe demanda e executa</div>
+            <div class="compare-cell">Co-criadora — participa das decisões</div>
+            <div class="compare-row-label">Postura</div>
+            <div class="compare-cell old">Reativa — age quando chamada</div>
+            <div class="compare-cell">Proativa — antecipa e propõe</div>
+            <div class="compare-row-label">Métrica de sucesso</div>
+            <div class="compare-cell old">Redução de custo, SLA, uptime</div>
+            <div class="compare-cell">Receita gerada, time-to-market, NPS</div>
+            <div class="compare-row-label">Exemplo</div>
+            <div class="compare-cell old">TI da Blockbuster, Kodak, Nokia</div>
+            <div class="compare-cell">TI da Netflix, Nubank, Magalu</div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 18: QUANDO A TI VIRA PRODUTO -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">A Virada de Chave</p>
+        <h2 class="slide-heading reveal">"O software deixou de ser o banco de dados da loja para ser <span class="blue">a própria loja</span>."</h2>
+        <div class="icon-grid reveal">
+            <div class="icon-card">
+                <div class="icon-card-emoji">🎵</div>
+                <div class="icon-card-title">Spotify</div>
+                <div class="icon-card-desc">A música é o produto. O algoritmo de recomendação é o diferencial.</div>
+            </div>
+            <div class="icon-card">
+                <div class="icon-card-emoji">🍔</div>
+                <div class="icon-card-title">iFood</div>
+                <div class="icon-card-desc">O restaurante existe sem o iFood. O iFood não existe sem o software.</div>
+            </div>
+            <div class="icon-card">
+                <div class="icon-card-emoji">🚗</div>
+                <div class="icon-card-title">Uber</div>
+                <div class="icon-card-desc">Nenhum carro próprio. Todo o valor está no algoritmo de matching.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 19: PROVOCAÇÃO DE TRANSIÇÃO -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <div class="provocation-badge reveal">🙋 Transição</div>
+        <p class="provocation-question reveal">Tudo bem, a teoria faz sentido.<br><br>Mas como isso acontece na prática?</p>
+        <p class="provocation-hint reveal">Vamos ver três casos que vocês conhecem.</p>
+    </div>
+</section>
+
+<!-- ============================================================
+     ATO 4 — ESTUDOS DE CASO
+     ============================================================ -->
+
+<!-- SLIDE 20: PROVOCAÇÃO NETFLIX -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <p class="act-label on-blue reveal">Ato 4 — Estudos de Caso</p>
+        <div class="provocation-badge reveal" style="background:#DC2626;">🎬 Case 1 — Netflix vs. Blockbuster</div>
+        <p class="provocation-question reveal">A Blockbuster tinha site, banco de dados, TI própria e 9.000 lojas. A Netflix era uma startup enviando DVDs pelo correio.<br><br>Por que a Blockbuster morreu?</p>
+        <div class="hand-raise reveal">⏱ Debate por 1 minuto</div>
+    </div>
+</section>
+
+<!-- SLIDE 21: NETFLIX EXPLICATIVO -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <div class="case-badge c1 reveal">🎬 Case 1 — Netflix</div>
+        <h2 class="slide-heading reveal">A Transformação da Netflix</h2>
+        <div class="steps reveal" style="margin-top:1rem;">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-title">DVD por Correio</div>
+                <div class="step-desc">Hipótese: "O cliente quer conveniência, não a loja física."</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step active">
+                <div class="step-num">2</div>
+                <div class="step-title">Streaming</div>
+                <div class="step-desc">Hipótese: "O cliente quer conteúdo instantâneo." Validada com agilidade. Pivotaram o modelo.</div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step active" style="border-color:var(--purple);background:#F5F3FF;">
+                <div class="step-num" style="background:var(--purple);">3</div>
+                <div class="step-title">Produção Própria</div>
+                <div class="step-desc">Hipótese: "O cliente quer conteúdo exclusivo." House of Cards, 2013.</div>
+            </div>
+        </div>
+        <p class="slide-body reveal" style="margin-top:1rem;">Eles não construíram o Netflix de hoje de uma vez. <strong>Construíram um incremento de cada vez</strong> — exatamente o que o Scrum ensina.</p>
+    </div>
+</section>
+
+<!-- SLIDE 22: LIÇÃO NETFLIX -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <div class="case-badge c1 reveal">🎬 Lição do Case 1</div>
+        <h2 class="slide-heading reveal">"O software deixou de ser o banco de dados da loja para ser <span class="blue">o produto</span>."</h2>
+        <div class="divider reveal"></div>
+        <div class="two-col reveal">
+            <div class="col-box negative">
+                <div class="col-box-label">Blockbuster</div>
+                <p>TI = suporte à operação física. A loja era o negócio. A TI servia a loja.</p>
+            </div>
+            <div class="col-box positive">
+                <div class="col-box-label">Netflix</div>
+                <p>TI = o negócio. Sem o algoritmo de recomendação, não existe Netflix.</p>
+            </div>
+        </div>
+        <p class="slide-body reveal" style="margin-top:1rem;">Centro de Custo → <strong>Coração do Negócio</strong></p>
+    </div>
+</section>
+
+<!-- SLIDE 23: PROVOCAÇÃO NUBANK -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <div class="provocation-badge reveal" style="background:var(--accent-dark);">🏦 Case 2 — Nubank vs. Bancos</div>
+        <p class="provocation-question reveal">Há 10 anos, o que era preciso para abrir uma conta no banco e pedir um cartão de crédito?</p>
+        <p class="provocation-hint reveal">Conte sua experiência. Quanto tempo levava? O que era necessário?</p>
+        <div class="hand-raise reveal">✋ Histórias da turma</div>
+    </div>
+</section>
+
+<!-- SLIDE 24: NUBANK EXPLICATIVO -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <div class="case-badge c2 reveal">🏦 Case 2 — Nubank</div>
+        <h2 class="slide-heading reveal">A Transformação do Nubank</h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">Hipótese central: <strong>"Por que o usuário precisa de agência? Por que precisa de gerente?"</strong></p>
+        <ul class="bullet-list reveal">
+            <li>Aprovação de crédito por algoritmo — em segundos</li>
+            <li>Zero agências físicas — zero custo fixo de estrutura</li>
+            <li>Suporte 100% digital — NPS mais alto do setor bancário</li>
+        </ul>
+        <p class="slide-body reveal" style="margin-top:1rem;">Os bancões tinham os maiores mainframes do Brasil. O Nubank não pegou a agência e colocou no celular — <strong>ele perguntou se a agência precisava existir</strong>.</p>
+    </div>
+</section>
+
+<!-- SLIDE 25: LIÇÃO NUBANK -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <div class="case-badge c2 reveal">🏦 Lição do Case 2</div>
+        <h2 class="slide-heading reveal">"TD é <span class="blue">eliminar atrito</span>, não digitalizar atrito."</h2>
+        <div class="divider reveal"></div>
+        <div class="two-col reveal">
+            <div class="col-box negative">
+                <div class="col-box-label">Bancos Tradicionais</div>
+                <p>Digitalizaram o processo burocrático. App bonito, mas ainda pede comprovante, ainda cobra taxa, ainda faz você esperar.</p>
+            </div>
+            <div class="col-box positive">
+                <div class="col-box-label">Nubank</div>
+                <p>Repensou se a burocracia precisava existir. Pavimentou um caminho novo — não as curvas da vaca.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 26: PROVOCAÇÃO MAGALU -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <div class="provocation-badge reveal" style="background:#16A34A;">🛒 Case 3 — Magazine Luiza</div>
+        <p class="provocation-question reveal">Uma loja física de eletrodomésticos fundada em Franca, interior de SP, em 1957.<br><br>Como ela virou uma das maiores plataformas de e-commerce da América Latina?</p>
+        <div class="hand-raise reveal">✋ Especule livremente</div>
+    </div>
+</section>
+
+<!-- SLIDE 27: MAGALU EXPLICATIVO -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <div class="case-badge c3 reveal">🛒 Case 3 — Magazine Luiza</div>
+        <h2 class="slide-heading reveal">A Transformação do Magalu</h2>
+        <div class="divider reveal"></div>
+        <ul class="bullet-list reveal">
+            <li><strong>Loja física como ponto de distribuição</strong> — não o destino, mas a logística</li>
+            <li><strong>Magalu como marketplace</strong> — outros lojistas vendem na plataforma deles</li>
+            <li><strong>LuizaCred e LuizaSeg</strong> — a loja que vendia televisor virou banco e seguradora</li>
+        </ul>
+        <p class="slide-body reveal" style="margin-top:1rem;">Eles não perguntaram <em>"como vendemos mais televisores?"</em><br><strong>Perguntaram "qual problema financeiro do cliente brasileiro a gente resolve?"</strong></p>
+    </div>
+</section>
+
+<!-- SLIDE 28: SÍNTESE DOS 3 CASES -->
+<section class="slide slide-white">
+    <div class="slide-content" style="padding-top:clamp(1rem,3vh,2rem);">
+        <p class="act-label reveal">Síntese dos 3 Cases</p>
+        <h2 class="slide-heading reveal" style="font-size:clamp(1rem,2.5vw,1.75rem);">O padrão que se repete.</h2>
+        <div class="synthesis reveal">
+            <div class="syn-header c1">🎬 Netflix</div>
+            <div class="syn-header c2">🏦 Nubank</div>
+            <div class="syn-header c3">🛒 Magalu</div>
+            <div class="syn-row-label">Modelo Antigo</div>
+            <div class="syn-cell">Locadora de DVD com TI de suporte</div>
+            <div class="syn-cell">Banco com agências físicas obrigatórias</div>
+            <div class="syn-cell">Varejista de eletrodomésticos</div>
+            <div class="syn-row-label">Hipótese Questionada</div>
+            <div class="syn-cell">"O cliente precisa ir até a loja?"</div>
+            <div class="syn-cell">"O cliente precisa de agência?"</div>
+            <div class="syn-cell">"Nosso negócio é vender produto?"</div>
+            <div class="syn-row-label">A Virada</div>
+            <div class="syn-cell">TI se tornou o produto</div>
+            <div class="syn-cell">Algoritmo substituiu burocracia</div>
+            <div class="syn-cell">Loja virou plataforma financeira</div>
+        </div>
+        <p class="slide-body reveal" style="margin-top:1rem;"><strong>"Em todos os casos, a transformação começou com uma pergunta, não com uma solução tecnológica."</strong></p>
+    </div>
+</section>
+
+<!-- ============================================================
+     ATO 5 — FECHAMENTO
+     ============================================================ -->
+
+<!-- SLIDE 29: PROVOCAÇÃO CASCATA -->
+<section class="slide slide-blue">
+    <div class="slide-content">
+        <p class="act-label on-blue reveal">Ato 5 — Fechamento</p>
+        <div class="provocation-badge reveal">🙋 Conectando com o semestre</div>
+        <p class="provocation-question reveal">Seria possível construir Netflix, Nubank ou Magalu usando o Modelo em Cascata?</p>
+        <p class="provocation-hint reveal">Se a Netflix usasse Cascata, passaria 3 anos escrevendo requisitos de um sistema de DVD por correio. Quando lançasse, o mundo já estaria no streaming.</p>
+        <div class="hand-raise reveal">✋ Por quê não?</div>
+    </div>
+</section>
+
+<!-- SLIDE 30: EMPIRISMO -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">O Elo</p>
+        <h2 class="slide-heading reveal">O Empirismo como Motor da <span class="blue">Transformação Digital</span></h2>
+        <div class="divider reveal"></div>
+        <p class="slide-body reveal">A TD vive da incerteza. Você não sabe se o cliente vai gostar. O Scrum foi construído exatamente para isso.</p>
+        <div class="pillars reveal">
+            <div class="pillar t">
+                <div class="pillar-emoji">👁</div>
+                <div class="pillar-title">Transparência</div>
+                <div class="pillar-sub">Ver como o usuário real reage ao produto</div>
+            </div>
+            <div class="pillar i">
+                <div class="pillar-emoji">🔬</div>
+                <div class="pillar-title">Inspeção</div>
+                <div class="pillar-sub">Colocar o incremento na mão do usuário</div>
+            </div>
+            <div class="pillar a">
+                <div class="pillar-emoji">🔄</div>
+                <div class="pillar-title">Adaptação</div>
+                <div class="pillar-sub">Mudar o modelo de negócio imediatamente</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 31: NOVO PAPEL DO PROFISSIONAL -->
+<section class="slide slide-white">
+    <div class="slide-content">
+        <p class="act-label reveal">Sua Carreira</p>
+        <h2 class="slide-heading reveal">O Novo Papel do<br><span class="blue">Profissional de TI</span></h2>
+        <div class="divider reveal"></div>
+        <div class="two-col reveal">
+            <div class="col-box negative">
+                <div class="col-box-label">Ontem</div>
+                <p>Executor técnico. Recebe a demanda, escreve o código, entrega a funcionalidade. Substituível.</p>
+            </div>
+            <div class="col-box positive">
+                <div class="col-box-label">Hoje</div>
+                <p>Parceiro de negócio. Questiona o problema antes de codificar a solução. Insubstituível.</p>
+            </div>
+        </div>
+        <p class="slide-body reveal" style="margin-top:1.25rem;">As empresas não contratam você para escrever Java ou Python. <strong>Contratam para resolver problemas de negócio. A linguagem é o martelo — a TD é a casa que você vai construir.</strong></p>
+    </div>
+</section>
+
+<!-- SLIDE 32: IMPACTO -->
+<section class="slide slide-impact" data-dark="true">
+    <div class="glow-orb" style="width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(59,130,246,0.06);"></div>
+    <div class="slide-content" style="align-items:center;justify-content:center;">
+        <p class="impact-text reveal-blur">
+            Você <span class="not">não</span> é um<br>digitador de código.
+        </p>
+    </div>
+</section>
+
+<!-- SLIDE 33: PERGUNTA DE SAÍDA -->
+<section class="slide slide-exit">
+    <div class="slide-content">
+        <p class="act-label reveal" style="color:#4B7A5E;">Para a próxima aula</p>
+        <p class="exit-question reveal">Qual processo burocrático e doloroso do seu dia a dia — na faculdade, no seu bairro, no seu estágio — precisa de uma Transformação Digital urgente?</p>
+        <p class="exit-hint reveal">Guarde essa reflexão. Na próxima aula vamos pegar esses problemas reais e aplicar tudo que aprendemos sobre Scrum e Engenharia de Requisitos para tentar resolvê-los.</p>
+        <div class="divider reveal" style="background:#16A34A;margin-top:2rem;"></div>
+        <p class="act-label reveal" style="color:#4B7A5E;margin-top:1rem;">Gestão de TI · 2026/1 · Prof. Ithalo Azevedo</p>
+    </div>
+</section>
+
+<script>
+    /* === SLIDE PRESENTATION CONTROLLER === */
+    class SlidePresentation {
+        constructor() {
+            this.slides = Array.from(document.querySelectorAll('.slide'));
+            this.total = this.slides.length;
+            this.current = 0;
+            this.isScrolling = false;
+
+            this.setupIntersectionObserver();
+            this.setupKeyboardNav();
+            this.setupTouchNav();
+            this.setupProgressBar();
+            this.setupNavDots();
+        }
+
+        setupIntersectionObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        this.current = this.slides.indexOf(entry.target);
+                        this.updateProgressBar();
+                        this.updateNavDots();
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            this.slides.forEach(slide => observer.observe(slide));
+        }
+
+        setupKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(e.key)) {
+                    e.preventDefault();
+                    this.goTo(this.current + 1);
+                } else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) {
+                    e.preventDefault();
+                    this.goTo(this.current - 1);
+                }
+            });
+        }
+
+        setupTouchNav() {
+            let startY = 0, startX = 0;
+            document.addEventListener('touchstart', e => {
+                startY = e.touches[0].clientY;
+                startX = e.touches[0].clientX;
+            }, { passive: true });
+            document.addEventListener('touchend', e => {
+                const dy = startY - e.changedTouches[0].clientY;
+                const dx = startX - e.changedTouches[0].clientX;
+                if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 50) {
+                    this.goTo(this.current + (dy > 0 ? 1 : -1));
+                }
+            }, { passive: true });
+        }
+
+        setupProgressBar() {
+            this.progressBar = document.getElementById('progressBar');
+        }
+
+        setupNavDots() {
+            const nav = document.getElementById('navDots');
+            this.slides.forEach((slide, i) => {
+                const dot = document.createElement('button');
+                dot.className = 'nav-dot' + (slide.dataset.dark ? ' dark-slide' : '');
+                dot.setAttribute('aria-label', `Slide ${i + 1}`);
+                dot.addEventListener('click', () => this.goTo(i));
+                nav.appendChild(dot);
+            });
+            this.dots = Array.from(nav.children);
+            this.updateNavDots();
+        }
+
+        goTo(index) {
+            if (index < 0 || index >= this.total) return;
+            this.slides[index].scrollIntoView({ behavior: 'smooth' });
+        }
+
+        updateProgressBar() {
+            if (this.progressBar) {
+                this.progressBar.style.width = `${((this.current + 1) / this.total) * 100}%`;
+            }
+        }
+
+        updateNavDots() {
+            if (!this.dots) return;
+            this.dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === this.current);
+            });
+        }
+    }
+
+    new SlidePresentation();
+</script>
+</body>
+</html>
