@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Como mudamos a gestão de requisitos — Linear para PMs</title>
+
+  <!-- Fonts: Cabinet Grotesk (display) + Satoshi (body) + JetBrains Mono (code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&f[]=satoshi@400,500,700&display=swap">
+
+  <style>
+    /* ===========================================
+       VIEWPORT BASE (mandatory)
+       =========================================== */
+    html, body { height: 100%; overflow-x: hidden; }
+    html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+    .slide {
+      width: 100vw; height: 100vh; height: 100dvh;
+      overflow: hidden; scroll-snap-align: start;
+      display: flex; flex-direction: column; position: relative;
+    }
+    .slide-content {
+      flex: 1; display: flex; flex-direction: column;
+      justify-content: center; max-height: 100%; overflow: hidden;
+      padding: var(--pad);
+    }
+
+    :root {
+      --title:    clamp(1.8rem, 4.2vw, 3.8rem);
+      --h2:       clamp(1.3rem, 2.8vw, 2.2rem);
+      --h3:       clamp(0.95rem, 1.8vw, 1.35rem);
+      --body:     clamp(0.78rem, 1.35vw, 1rem);
+      --small:    clamp(0.62rem, 1vw, 0.8rem);
+      --pad:      clamp(1.5rem, 5vw, 5rem);
+      --gap:      clamp(0.6rem, 1.5vw, 1.5rem);
+      --radius:   14px;
+    }
+
+    @media (max-height: 700px) {
+      :root { --pad: clamp(1rem, 3vw, 2.5rem); --title: clamp(1.4rem, 3.5vw, 2.5rem); }
+    }
+    @media (max-height: 600px) {
+      :root { --pad: clamp(0.75rem, 2.5vw, 1.5rem); --title: clamp(1.2rem, 3vw, 2rem); }
+      .hide-small { display: none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    }
+
+    /* ===========================================
+       DESIGN SYSTEM — PREMIUM
+       =========================================== */
+    :root {
+      --bg:         #07091a;
+      --bg2:        #0e1228;
+      --surface:    rgba(255,255,255,0.04);
+      --border:     rgba(255,255,255,0.07);
+      --border-hi:  rgba(255,255,255,0.14);
+      --text:       #f0f4ff;
+      --text2:      #8896b3;
+      --text3:      #4a5980;
+
+      /* Role colors */
+      --pm:         #a78bfa;
+      --pm-d:       #7c3aed;
+      --pm-g:       rgba(167,139,250,0.15);
+      --pm-gb:      rgba(167,139,250,0.06);
+      --pd:         #f9a8d4;
+      --pd-d:       #db2777;
+      --pd-g:       rgba(249,168,212,0.15);
+      --pd-gb:      rgba(249,168,212,0.06);
+      --eng:        #6ee7b7;
+      --eng-d:      #059669;
+      --eng-g:      rgba(110,231,183,0.15);
+      --eng-gb:     rgba(110,231,183,0.06);
+
+      /* Accent */
+      --accent:     #4f6ef7;
+      --accent-g:   rgba(79,110,247,0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Satoshi', 'Cabinet Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===========================================
+       SHARED BACKGROUND SYSTEM
+       =========================================== */
+    .slide-bg {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(clamp(40px, 8vw, 100px));
+      pointer-events: none;
+    }
+    .grid-lines {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .slide-body { position: relative; z-index: 1; }
+
+    /* ===========================================
+       GLASS CARDS
+       =========================================== */
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .glass-hi { border-color: var(--border-hi); }
+
+    /* ===========================================
+       ROLE BADGES
+       =========================================== */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--small); font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .badge-pm  { background: var(--pm-g);  color: var(--pm);  border: 1px solid rgba(167,139,250,0.25); }
+    .badge-pd  { background: var(--pd-g);  color: var(--pd);  border: 1px solid rgba(249,168,212,0.25); }
+    .badge-eng { background: var(--eng-g); color: var(--eng); border: 1px solid rgba(110,231,183,0.25); }
+    .badge-neutral { background: rgba(255,255,255,0.06); color: var(--text2); border: 1px solid var(--border-hi); }
+
+    /* ===========================================
+       TYPOGRAPHY
+       =========================================== */
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--small); font-weight: 400;
+      color: var(--text3); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem);
+    }
+    h1 { font-family: 'Cabinet Grotesk', sans-serif; font-size: var(--title); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
+    h2 { font-family: 'Cabinet Grotesk', sans-serif; font-size: var(--h2); font-weight: 700; line-height: 1.1; letter-spacing: -0.015em; }
+    h3 { font-family: 'Cabinet Grotesk', sans-serif; font-size: var(--h3); font-weight: 700; line-height: 1.2; }
+    p, li { font-size: var(--body); line-height: 1.6; color: var(--text2); }
+    code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.88em;
+      background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 5px;
+      color: var(--eng); border: 1px solid var(--border-hi);
+    }
+
+    /* ===========================================
+       REVEAL ANIMATIONS
+       =========================================== */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal-left  { opacity: 0; transform: translateX(-30px); transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-right { opacity: 0; transform: translateX(30px);  transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-scale { opacity: 0; transform: scale(0.93);       transition: opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+
+    .slide.visible .reveal,
+    .slide.visible .reveal-left,
+    .slide.visible .reveal-right,
+    .slide.visible .reveal-scale { opacity: 1; transform: none; }
+
+    .d1 { transition-delay: 0.08s; } .d2 { transition-delay: 0.18s; }
+    .d3 { transition-delay: 0.28s; } .d4 { transition-delay: 0.38s; }
+    .d5 { transition-delay: 0.48s; } .d6 { transition-delay: 0.58s; }
+    .d7 { transition-delay: 0.68s; }
+
+    /* ===========================================
+       FIXED UI ELEMENTS
+       =========================================== */
+    #progress-bar-wrap {
+      position: fixed; top: 0; left: 0; right: 0; height: 2px;
+      background: rgba(255,255,255,0.06); z-index: 1000;
+    }
+    #progress-bar {
+      height: 100%; width: 0%; transition: width 0.4s ease;
+      background: linear-gradient(90deg, var(--pm-d), var(--accent), var(--eng-d));
+    }
+    #slide-counter {
+      position: fixed; top: 18px; right: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.6rem, 1vw, 0.75rem); color: var(--text3);
+      letter-spacing: 0.08em; z-index: 1000;
+    }
+    #nav-dots {
+      position: fixed; right: 14px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 7px; z-index: 1000;
+    }
+    .nav-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-dot.active { background: var(--accent); transform: scale(1.6); }
+    .nav-dot:hover { background: rgba(255,255,255,0.4); }
+
+    /* ===========================================
+       SLIDE-SPECIFIC COMPONENTS
+       =========================================== */
+
+    /* — Gradient text — */
+    .grad-pm  { background: linear-gradient(135deg, var(--pm), #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-pd  { background: linear-gradient(135deg, var(--pd), #fbcfe8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-eng { background: linear-gradient(135deg, var(--eng), #a7f3d0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-acc { background: linear-gradient(135deg, #818cf8, var(--accent), #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* — Accent line — */
+    .accent-line {
+      width: clamp(28px, 3vw, 40px); height: 3px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--pm));
+      margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
+    }
+
+    /* — Hub diagram (Slide 02) — */
+    .hub-wrap {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: clamp(0.5rem, 2vw, 2rem);
+      width: 100%; max-width: min(90vw, 700px); margin: 0 auto;
+    }
+    .hub-col { display: flex; flex-direction: column; gap: clamp(0.4rem, 1.2vh, 1rem); }
+    .hub-col.right { align-items: flex-start; }
+    .hub-col.left  { align-items: flex-end; }
+    .hub-node {
+      padding: clamp(6px, 1.2vh, 10px) clamp(10px, 2vw, 16px);
+      font-size: var(--small); font-weight: 500; color: var(--text2);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .hub-arrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.7rem, 1.5vw, 1.1rem); color: var(--text3);
+    }
+    .hub-center {
+      width: clamp(80px, 14vw, 120px); height: clamp(80px, 14vw, 120px);
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pm-d), var(--accent));
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 0 40px rgba(167,139,250,0.3), 0 0 80px rgba(79,110,247,0.15);
+      flex-shrink: 0;
+    }
+    .hub-center span { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: clamp(1rem, 2.5vw, 1.5rem); color: white; }
+    .hub-center small { font-size: var(--small); color: rgba(255,255,255,0.6); font-family: 'JetBrains Mono', monospace; }
+
+    /* — Before/After columns (Slide 03) — */
+    .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2.5vw, 2.5rem); }
+    .ba-card { padding: clamp(1rem, 2.5vh, 2rem) clamp(1rem, 2vw, 1.8rem); }
+    .ba-label { font-family: 'JetBrains Mono', monospace; font-size: var(--small); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: clamp(0.5rem, 1.2vh, 1rem); }
+    .ba-items { display: flex; flex-direction: column; gap: clamp(0.35rem, 0.8vh, 0.7rem); list-style: none; }
+    .ba-items li { font-size: var(--body); display: flex; align-items: flex-start; gap: 8px; }
+    .ba-items li::before { content: ''; flex-shrink: 0; margin-top: 0.55em; width: 6px; height: 6px; border-radius: 50%; }
+    .before-card .ba-label { color: #f87171; }
+    .before-card .ba-items li::before { background: rgba(248,113,113,0.5); }
+    .after-card  .ba-label { color: var(--eng); }
+    .after-card  .ba-items li::before { background: var(--eng-d); }
+
+    /* — Principle cards (Slide 05) — */
+    .principle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.6rem, 1.5vw, 1.2rem); }
+    .principle-card { padding: clamp(0.8rem, 2vh, 1.6rem); display: flex; flex-direction: column; gap: clamp(0.4rem, 0.8vh, 0.8rem); }
+    .principle-num { font-family: 'JetBrains Mono', monospace; font-size: var(--small); color: var(--text3); }
+    .principle-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: var(--h3); font-weight: 700; color: var(--text); }
+    .principle-desc { font-size: var(--body); color: var(--text2); line-height: 1.5; }
+
+    /* — Epic vs Project timeline (Slide 06) — */
+    .timeline-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2.5vw, 2.5rem); }
+    .timeline-label { font-family: 'JetBrains Mono', monospace; font-size: var(--small); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: clamp(0.5rem, 1.2vh, 1rem); }
+    .epic-bar-wrap { margin-bottom: clamp(0.5rem, 1.2vh, 1rem); }
+    .epic-bar {
+      height: clamp(24px, 4vh, 36px); border-radius: 6px; position: relative;
+      background: linear-gradient(90deg, rgba(248,113,113,0.2), rgba(248,113,113,0.35));
+      border: 1px solid rgba(248,113,113,0.3); display: flex; align-items: center;
+    }
+    .epic-bar-inner { padding: 0 12px; font-size: var(--small); color: rgba(248,113,113,0.7); font-family: 'JetBrains Mono', monospace; }
+    .epic-bar .value-end { position: absolute; right: -1px; top: 50%; transform: translateY(-50%) translateX(100%); padding-left: 8px; font-size: var(--small); color: #f87171; white-space: nowrap; }
+    .project-rows { display: flex; flex-direction: column; gap: clamp(0.4rem, 0.8vh, 0.8rem); }
+    .project-row { display: flex; align-items: center; gap: 8px; }
+    .proj-bar {
+      height: clamp(22px, 3.5vh, 32px); border-radius: 6px; flex: 1;
+      background: linear-gradient(90deg, var(--eng-gb), var(--eng-g));
+      border: 1px solid rgba(110,231,183,0.25); display: flex; align-items: center; padding: 0 10px;
+      font-size: var(--small); color: var(--eng); font-family: 'JetBrains Mono', monospace;
+    }
+    .proj-check { color: var(--eng); font-size: clamp(0.9rem, 1.5vw, 1.2rem); }
+
+    /* — Who writes what (Slide 07) — */
+    .who-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.7rem, 1.5vw, 1.5rem); }
+    .who-card { padding: clamp(1rem, 2.5vh, 2rem) clamp(0.8rem, 1.8vw, 1.5rem); display: flex; flex-direction: column; gap: clamp(0.6rem, 1.2vh, 1.2rem); }
+    .who-card-accent { height: 3px; border-radius: 2px; margin-bottom: clamp(0.2rem, 0.5vh, 0.5rem); }
+    .who-items { list-style: none; display: flex; flex-direction: column; gap: clamp(0.3rem, 0.6vh, 0.6rem); }
+    .who-items li { font-size: var(--body); color: var(--text2); display: flex; align-items: baseline; gap: 6px; }
+    .who-items li::before { content: '→'; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; flex-shrink: 0; }
+    .pm-card  { border-color: rgba(167,139,250,0.2); background: var(--pm-gb); }
+    .pd-card  { border-color: rgba(249,168,212,0.2); background: var(--pd-gb); }
+    .eng-card { border-color: rgba(110,231,183,0.2); background: var(--eng-gb); }
+    .pm-card  .who-items li::before { color: var(--pm); }
+    .pd-card  .who-items li::before { color: var(--pd); }
+    .eng-card .who-items li::before { color: var(--eng); }
+
+    /* — Hierarchy (Slide 08) — */
+    .hier-row { display: flex; align-items: stretch; gap: 0; }
+    .hier-card { flex: 1; padding: clamp(0.8rem, 2vh, 1.8rem) clamp(0.8rem, 1.8vw, 1.5rem); position: relative; }
+    .hier-connector {
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 clamp(4px, 0.8vw, 10px); color: var(--text3); flex-shrink: 0;
+      font-size: clamp(1rem, 2vw, 1.5rem);
+    }
+    .hier-level { font-family: 'JetBrains Mono', monospace; font-size: var(--small); color: var(--text3); margin-bottom: 4px; }
+    .hier-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: var(--h3); font-weight: 700; margin-bottom: clamp(0.4rem, 0.8vh, 0.8rem); }
+    .hier-question { font-size: var(--small); color: var(--text2); font-style: italic; margin-bottom: clamp(0.3rem, 0.6vh, 0.6rem); }
+    .hier-meta { display: flex; flex-direction: column; gap: 3px; }
+    .hier-meta span { font-size: var(--small); color: var(--text3); display: flex; align-items: center; gap: 4px; }
+
+    /* — Discovery paths (Slide 09) — */
+    .paths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2.5vw, 2.5rem); }
+    .path-card { padding: clamp(1rem, 2.5vh, 2rem) clamp(1rem, 2vw, 1.5rem); }
+    .path-label { font-family: 'JetBrains Mono', monospace; font-size: var(--small); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: clamp(0.6rem, 1.2vh, 1.2rem); }
+    .path-steps { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.7vh, 0.7rem); list-style: none; }
+    .path-step { display: flex; align-items: baseline; gap: 8px; font-size: var(--body); }
+    .step-num { font-family: 'JetBrains Mono', monospace; font-size: var(--small); color: var(--text3); flex-shrink: 0; min-width: 20px; }
+    .milestone-badge {
+      display: inline; padding: 1px 7px; border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em; font-weight: 600;
+      background: rgba(79,110,247,0.15); color: var(--accent); border: 1px solid rgba(79,110,247,0.25);
+    }
+    .antipattern-box {
+      margin-top: clamp(0.6rem, 1.5vh, 1.5rem); padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.8rem, 1.5vw, 1.2rem);
+      background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px;
+      font-size: var(--small); color: rgba(248,113,113,0.8);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+
+    /* — Role by scenario (Slide 10) — */
+    .scenario-grid { display: grid; grid-template-columns: auto 1fr 1fr; gap: 1px; background: var(--border); border-radius: var(--radius); overflow: hidden; }
+    .scenario-cell { background: var(--bg2); padding: clamp(0.6rem, 1.5vh, 1.2rem) clamp(0.8rem, 1.5vw, 1.2rem); }
+    .scenario-header { background: rgba(255,255,255,0.03); font-family: 'JetBrains Mono', monospace; font-size: var(--small); font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; display: flex; align-items: center; }
+    .scenario-role { display: flex; align-items: center; justify-content: center; }
+    .scenario-actions { display: flex; flex-direction: column; gap: clamp(0.2rem, 0.4vh, 0.4rem); }
+    .scenario-actions span { font-size: var(--small); color: var(--text2); }
+    .scenario-actions span::before { content: '·'; margin-right: 5px; color: var(--text3); }
+
+    /* — Issue example (Slide 12) — */
+    .issue-tree { display: flex; flex-direction: column; gap: 0; }
+    .issue-parent { padding: clamp(0.7rem, 1.5vh, 1.2rem) clamp(0.8rem, 1.5vw, 1.2rem); }
+    .issue-children { margin-left: clamp(1rem, 2.5vw, 2.5rem); border-left: 2px solid var(--border-hi); padding-left: clamp(0.8rem, 1.5vw, 1.2rem); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .issue-child { padding: clamp(0.4rem, 0.8vh, 0.8rem) clamp(0.6rem, 1.2vw, 1rem); font-size: var(--body); }
+    .issue-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; font-weight: 600; padding: 2px 7px; border-radius: 4px; margin-right: 6px; }
+    .tag-bff     { background: rgba(167,139,250,0.12); color: var(--pm); }
+    .tag-front   { background: rgba(79,110,247,0.12);  color: #818cf8; }
+    .tag-infra   { background: rgba(110,231,183,0.12); color: var(--eng); }
+
+    /* — Skill cards (Slide 13) — */
+    .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 2.5vw, 2.5rem); }
+    .skill-card { padding: clamp(1.2rem, 3vh, 2.5rem) clamp(1.2rem, 2.5vw, 2rem); display: flex; flex-direction: column; gap: clamp(0.6rem, 1.2vh, 1.2rem); }
+    .skill-cmd { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.9rem, 2vw, 1.4rem); font-weight: 600; }
+    .skill-desc { font-size: var(--body); color: var(--text2); line-height: 1.5; }
+    .skill-items { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .skill-items li { font-size: var(--small); color: var(--text3); display: flex; gap: 6px; }
+    .skill-items li::before { content: '→'; }
+  </style>
+</head>
+<body>
+
+<!-- ===================== FIXED UI ===================== -->
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+<div id="slide-counter">01 / 14</div>
+<nav id="nav-dots" aria-label="Navegação por slides"></nav>
+
+<!-- =====================================================
+     SLIDE 01 — ABERTURA
+===================================================== -->
+<section class="slide" id="s1" aria-label="Abertura">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:55vw;height:55vw;top:-15%;left:-10%;background:radial-gradient(circle,rgba(99,102,241,0.18) 0%,transparent 70%);"></div>
+    <div class="orb" style="width:40vw;height:40vw;bottom:-10%;right:-5%;background:radial-gradient(circle,rgba(167,139,250,0.12) 0%,transparent 70%);"></div>
+    <div class="orb" style="width:20vw;height:20vw;top:40%;left:40%;background:radial-gradient(circle,rgba(110,231,183,0.07) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body" style="justify-content:center;padding:clamp(2rem,6vw,7rem);">
+    <div class="reveal d1">
+      <span class="badge badge-neutral" style="margin-bottom:clamp(1rem,2.5vh,2rem);">Workshop · Linear para PMs · 2026</span>
+    </div>
+    <h1 class="reveal d2" style="max-width:min(90vw,780px);margin-bottom:clamp(0.5rem,1.5vh,1.2rem);">
+      Como mudamos a<br><span class="grad-acc">gestão de requisitos</span>
+    </h1>
+    <p class="reveal d3" style="font-size:var(--h3);color:var(--text2);max-width:min(80vw,560px);margin-top:clamp(0.5rem,1.5vh,1.2rem);">
+      Da centralização no PM para a autonomia do time — com o Linear.
+    </p>
+    <div class="reveal d4" style="margin-top:clamp(1.5rem,4vh,3rem);display:flex;gap:clamp(0.5rem,1vw,1rem);flex-wrap:wrap;">
+      <span class="badge badge-pm">PM → Iniciativas</span>
+      <span class="badge badge-pd">PD → Issues de design</span>
+      <span class="badge badge-eng">Eng → Issues técnicas</span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 02 — O GARGALO DO PM
+===================================================== -->
+<section class="slide" id="s2" aria-label="O gargalo do PM">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:45vw;height:45vw;top:-5%;right:-10%;background:radial-gradient(circle,rgba(248,113,113,0.12) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 1 · O problema</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(1rem,3vh,2.5rem);">Antes, tudo passava pelo PM</h2>
+
+    <div class="hub-wrap reveal d3">
+      <div class="hub-col left">
+        <div class="hub-node glass" style="border-radius:var(--radius);">
+          <span style="color:var(--pd);">●</span> Designer<span class="hub-arrow" style="margin-left:6px;">→</span>
+        </div>
+        <div class="hub-node glass" style="border-radius:var(--radius);">
+          <span style="color:#60a5fa;">●</span> Engenheiro<span class="hub-arrow" style="margin-left:6px;">→</span>
+        </div>
+        <div class="hub-node glass" style="border-radius:var(--radius);">
+          <span style="color:var(--eng);">●</span> Tech Lead<span class="hub-arrow" style="margin-left:6px;">→</span>
+        </div>
+      </div>
+
+      <div class="hub-center">
+        <span>PM</span>
+        <small>gargalo</small>
+      </div>
+
+      <div class="hub-col right">
+        <div class="hub-node glass" style="border-radius:var(--radius);">
+          <span class="hub-arrow" style="margin-right:6px;">←</span><span style="color:#f59e0b;">●</span> Stakeholder
+        </div>
+        <div class="hub-node glass" style="border-radius:var(--radius);">
+          <span class="hub-arrow" style="margin-right:6px;">←</span><span style="color:#34d399;">●</span> Scrum Master
+        </div>
+        <div class="hub-node glass" style="border-radius:var(--radius);">
+          <span class="hub-arrow" style="margin-right:6px;">←</span><span style="color:#c084fc;">●</span> QA
+        </div>
+      </div>
+    </div>
+
+    <p class="reveal d4 hide-small" style="text-align:center;margin-top:clamp(0.8rem,2vh,1.8rem);max-width:min(90vw,620px);margin-left:auto;margin-right:auto;">
+      Issues, critérios de aceite, histórias, sub-tasks — tudo centralizado.<br>O time esperava. O PM acumulava.
+    </p>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 03 — O QUE QUERIA MUDAR
+===================================================== -->
+<section class="slide" id="s3" aria-label="O que queria mudar">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:30vw;height:30vw;bottom:0;left:30%;background:radial-gradient(circle,rgba(110,231,183,0.1) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 1 · O problema</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(1rem,3vh,2.5rem);">Não é só trocar ferramenta</h2>
+
+    <div class="ba-grid reveal d3">
+      <div class="glass ba-card before-card">
+        <div class="ba-label">❌ Antes — Centralizado</div>
+        <ul class="ba-items">
+          <li>PM escreve todas as issues</li>
+          <li>PM define critérios de aceite</li>
+          <li>PM cria histórias e sub-tasks</li>
+          <li>Time executa o que o PM definiu</li>
+        </ul>
+      </div>
+      <div class="glass ba-card after-card">
+        <div class="ba-label">✓ Depois — Distribuído</div>
+        <ul class="ba-items">
+          <li>PM define a direção macro</li>
+          <li>Designer escreve suas próprias issues</li>
+          <li>Engenheiro escreve as issues técnicas</li>
+          <li>Cada um é dono do que sabe fazer</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="reveal d4 glass" style="margin-top:clamp(0.8rem,2vh,1.8rem);padding:clamp(0.8rem,1.8vh,1.4rem) clamp(1rem,2vw,1.8rem);border-color:rgba(79,110,247,0.25);background:rgba(79,110,247,0.06);">
+      <p style="color:var(--text);font-size:var(--h3);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;">
+        É trocar mentalidade. <span style="color:var(--text2);font-weight:400;">Autonomia, senso de dono, decisão perto de quem executa.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 04 — POR QUE O LINEAR?
+===================================================== -->
+<section class="slide" id="s4" aria-label="Por que o Linear">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:50vw;height:50vw;top:-20%;left:-15%;background:radial-gradient(circle,rgba(79,110,247,0.18) 0%,transparent 70%);"></div>
+    <div class="orb" style="width:30vw;height:30vw;bottom:-10%;right:10%;background:radial-gradient(circle,rgba(167,139,250,0.12) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body" style="justify-content:center;max-width:min(90vw,800px);margin:0 auto;">
+    <div class="eyebrow reveal d1">Ato 2 · A virada</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(1rem,3vh,2.5rem);">Por que o Linear?</h2>
+
+    <div class="glass reveal d3" style="padding:clamp(1.5rem,4vh,3rem) clamp(1.5rem,4vw,3rem);border-color:rgba(79,110,247,0.2);background:rgba(79,110,247,0.05);margin-bottom:clamp(1rem,2.5vh,2rem);">
+      <p style="font-family:'Cabinet Grotesk',sans-serif;font-size:clamp(1.1rem,2.5vw,1.8rem);font-weight:700;line-height:1.3;color:var(--text);">
+        "Ferramenta construída para os criadores — não para gerar relatórios perfeitos."
+      </p>
+      <p style="margin-top:0.8rem;font-size:var(--body);color:var(--text3);font-family:'JetBrains Mono',monospace;">
+        — Linear Method
+      </p>
+    </div>
+
+    <div class="reveal d4" style="display:flex;gap:clamp(0.5rem,1.2vw,1.2rem);flex-wrap:wrap;">
+      <div class="glass" style="padding:clamp(0.6rem,1.2vh,1rem) clamp(0.8rem,1.5vw,1.2rem);flex:1;min-width:160px;">
+        <p style="color:var(--text3);font-size:var(--small);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Decisão</p>
+        <p style="color:var(--text);font-size:var(--body);font-weight:500;">Estratégica, não comparação técnica de features</p>
+      </div>
+      <div class="glass" style="padding:clamp(0.6rem,1.2vh,1rem) clamp(0.8rem,1.5vw,1.2rem);flex:1;min-width:160px;">
+        <p style="color:var(--text3);font-size:var(--small);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Foco</p>
+        <p style="color:var(--text);font-size:var(--body);font-weight:500;">Autonomia real para quem constrói o produto</p>
+      </div>
+      <div class="glass" style="padding:clamp(0.6rem,1.2vh,1rem) clamp(0.8rem,1.5vw,1.2rem);flex:1;min-width:160px;">
+        <p style="color:var(--text3);font-size:var(--small);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Cultura</p>
+        <p style="color:var(--text);font-size:var(--body);font-weight:500;">Ownership distribuído desde a base</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 05 — PRINCÍPIOS DO LINEAR METHOD
+===================================================== -->
+<section class="slide" id="s5" aria-label="Princípios do Linear Method">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:35vw;height:35vw;top:10%;right:-10%;background:radial-gradient(circle,rgba(167,139,250,0.14) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 2 · A virada</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">Os princípios do Linear Method</h2>
+
+    <div class="principle-grid">
+      <div class="glass principle-card reveal d3">
+        <div class="principle-num">01</div>
+        <div class="principle-title">Issues <span style="color:#f87171;">≠</span> User Stories</div>
+        <p class="principle-desc">Chega de "Como usuário, eu quero...". Issues descrevem tarefas concretas, direto ao ponto, sem burocracia de template.</p>
+      </div>
+      <div class="glass principle-card reveal d4">
+        <div class="principle-num">02</div>
+        <div class="principle-title">Escreva para quem executa</div>
+        <p class="principle-desc">Quem entende o trabalho escreve a issue. Sem intermediário, sem tradução — direto da fonte para a execução.</p>
+      </div>
+      <div class="glass principle-card reveal d5">
+        <div class="principle-num">03</div>
+        <div class="principle-title">Momentum, não sprint heroico</div>
+        <p class="principle-desc">Escopo pequeno, cadência constante. Entrega contínua supera o acúmulo seguido de sprint de apagar incêndio.</p>
+      </div>
+      <div class="glass principle-card reveal d6">
+        <div class="principle-num">04</div>
+        <div class="principle-title">Direção significativa</div>
+        <p class="principle-desc">Todo trabalho conectado a um propósito maior. Iniciativas e Milestones lembram o time <em>por que</em> o trabalho existe.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 06 — DO ÉPICO AO PROJETO
+===================================================== -->
+<section class="slide" id="s6" aria-label="Do Épico ao Projeto">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:35vw;height:35vw;bottom:-10%;left:-5%;background:radial-gradient(circle,rgba(110,231,183,0.1) 0%,transparent 70%);"></div>
+    <div class="orb" style="width:25vw;height:25vw;top:5%;right:5%;background:radial-gradient(circle,rgba(248,113,113,0.08) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 2 · A virada</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">Do Épico ao Projeto: a virada de mentalidade</h2>
+
+    <div class="timeline-wrap reveal d3">
+      <!-- ÉPICO -->
+      <div class="glass" style="padding:clamp(0.8rem,2vh,1.8rem);border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.04);">
+        <div class="timeline-label" style="color:#f87171;">Jira — Épico</div>
+        <div class="epic-bar-wrap">
+          <div class="epic-bar" style="width:92%;">
+            <span class="epic-bar-inner">Épico de valor</span>
+            <span class="value-end">🎯 valor</span>
+          </div>
+        </div>
+        <p style="font-size:var(--small);color:rgba(248,113,113,0.7);margin-top:6px;">Entrega grande → usuários esperam meses para ver impacto</p>
+        <p style="font-size:var(--small);color:var(--text3);margin-top:4px;">Progresso invisível. Sprint heroico para fechar.</p>
+      </div>
+
+      <!-- PROJETOS -->
+      <div class="glass" style="padding:clamp(0.8rem,2vh,1.8rem);border-color:rgba(110,231,183,0.2);background:var(--eng-gb);">
+        <div class="timeline-label" style="color:var(--eng);">Linear — Projetos</div>
+        <div class="project-rows">
+          <div class="project-row">
+            <div class="proj-bar">Projeto 1 — até 2 cycles</div>
+            <span class="proj-check">✓</span>
+          </div>
+          <div class="project-row">
+            <div class="proj-bar">Projeto 2 — até 2 cycles</div>
+            <span class="proj-check">✓</span>
+          </div>
+          <div class="project-row">
+            <div class="proj-bar">Projeto 3 — até 2 cycles</div>
+            <span class="proj-check">✓</span>
+          </div>
+        </div>
+        <p style="font-size:var(--small);color:var(--eng);margin-top:8px;">Valor visível a cada entrega. Stakeholders acompanham o progresso.</p>
+      </div>
+    </div>
+
+    <div class="glass reveal d4" style="margin-top:clamp(0.6rem,1.5vh,1.5rem);padding:clamp(0.7rem,1.5vh,1.2rem) clamp(1rem,2vw,1.5rem);border-color:rgba(79,110,247,0.2);background:rgba(79,110,247,0.05);display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.2em;">💡</span>
+      <p style="font-size:var(--body);color:var(--text);">
+        Para funcionar: <strong>planejamento de longo prazo + backlog sempre alimentado.</strong>
+        A mentalidade de projeto força a segmentar entregas em fatias de valor reais.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 07 — QUEM ESCREVE O QUÊ ⭐
+===================================================== -->
+<section class="slide" id="s7" aria-label="Quem escreve o quê">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:40vw;height:40vw;top:-10%;left:20%;background:radial-gradient(circle,rgba(167,139,250,0.12) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 2 · A virada <span style="color:var(--accent);">⭐ slide central</span></div>
+    <div class="accent-line reveal d2" style="background:linear-gradient(90deg,var(--pm),var(--pd),var(--eng));width:60px;"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">Quem escreve o quê</h2>
+
+    <div class="who-grid">
+      <div class="glass who-card pm-card reveal d3">
+        <div class="who-card-accent" style="background:linear-gradient(90deg,var(--pm-d),var(--pm));"></div>
+        <span class="badge badge-pm" style="align-self:flex-start;">PM</span>
+        <h3 class="grad-pm">Macro — direção</h3>
+        <ul class="who-items">
+          <li>Iniciativas estratégicas</li>
+          <li>Projetos táticos + briefing/spec</li>
+          <li>Milestones como portões de decisão</li>
+        </ul>
+      </div>
+      <div class="glass who-card pd-card reveal d4">
+        <div class="who-card-accent" style="background:linear-gradient(90deg,var(--pd-d),var(--pd));"></div>
+        <span class="badge badge-pd" style="align-self:flex-start;">PD / Designer</span>
+        <h3 class="grad-pd">Micro — design</h3>
+        <ul class="who-items">
+          <li>Explorar direções de design</li>
+          <li>Validar protótipo com usuários</li>
+          <li>Design tela X / componente Y</li>
+          <li>Alinhar handover com engenharia</li>
+        </ul>
+      </div>
+      <div class="glass who-card eng-card reveal d5">
+        <div class="who-card-accent" style="background:linear-gradient(90deg,var(--eng-d),var(--eng));"></div>
+        <span class="badge badge-eng" style="align-self:flex-start;">Engenharia</span>
+        <h3 class="grad-eng">Micro — técnico</h3>
+        <ul class="who-items">
+          <li><code>[BFF]</code> endpoints e serviços</li>
+          <li><code>[Frontend]</code> componentes e telas</li>
+          <li><code>[Infra]</code> configuração e deploy</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="reveal d6 hide-small" style="margin-top:clamp(0.6rem,1.5vh,1.2rem);font-size:var(--small);color:var(--text3);text-align:center;">
+      Cada papel escreve o que sabe melhor — sem intermediário.
+    </p>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 08 — A HIERARQUIA DO LINEAR
+===================================================== -->
+<section class="slide" id="s8" aria-label="A hierarquia do Linear">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:35vw;height:35vw;top:-10%;right:-10%;background:radial-gradient(circle,rgba(79,110,247,0.12) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 3 · O mapa</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">A hierarquia do Linear</h2>
+
+    <div class="hier-row reveal d3">
+      <!-- Iniciativa -->
+      <div class="glass hier-card" style="border-color:rgba(167,139,250,0.2);background:var(--pm-gb);">
+        <div class="hier-level">Nível 1</div>
+        <div class="hier-title grad-pm">Iniciativa</div>
+        <div class="hier-question">"Qual a aposta estratégica?"</div>
+        <div class="hier-meta">
+          <span><span style="color:var(--pm);">●</span> PM</span>
+          <span>⏱ Trimestre / Semestre</span>
+        </div>
+      </div>
+      <div class="hier-connector">→</div>
+
+      <!-- Projeto -->
+      <div class="glass hier-card" style="border-color:rgba(79,110,247,0.2);background:rgba(79,110,247,0.04);">
+        <div class="hier-level">Nível 2</div>
+        <div class="hier-title" style="color:#818cf8;">Projeto</div>
+        <div class="hier-question">"O que vamos construir?"</div>
+        <div class="hier-meta">
+          <span><span style="color:#818cf8;">●</span> PM</span>
+          <span>⏱ Semanas – 2 cycles</span>
+        </div>
+      </div>
+      <div class="hier-connector">→</div>
+
+      <!-- Milestone -->
+      <div class="glass hier-card" style="border-color:rgba(96,165,250,0.2);background:rgba(96,165,250,0.04);">
+        <div class="hier-level">Nível 3</div>
+        <div class="hier-title" style="color:#60a5fa;">Milestone</div>
+        <div class="hier-question">"Qual o marco de validação?"</div>
+        <div class="hier-meta">
+          <span><span style="color:#60a5fa;">●</span> PM + time</span>
+          <span>⏱ Dentro do ciclo</span>
+        </div>
+      </div>
+      <div class="hier-connector">→</div>
+
+      <!-- Issue -->
+      <div class="glass hier-card" style="border-color:rgba(110,231,183,0.2);background:var(--eng-gb);">
+        <div class="hier-level">Nível 4</div>
+        <div class="hier-title grad-eng">Issue</div>
+        <div class="hier-question">"O que precisa ser feito?"</div>
+        <div class="hier-meta">
+          <span><span style="color:var(--eng);">●</span> PD / Eng</span>
+          <span>⏱ Dias</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal d4 glass hide-small" style="margin-top:clamp(0.8rem,2vh,1.8rem);padding:clamp(0.6rem,1.2vh,1rem) clamp(1rem,2vw,1.5rem);border-color:rgba(79,110,247,0.2);display:flex;align-items:center;gap:8px;">
+      <span style="font-size:1em;">💡</span>
+      <p style="font-size:var(--small);color:var(--text2);">Este skill cobre os níveis 1–3 (<code>/linear-spec</code>). Para issues use <code>/linear-issues</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 09 — OS DOIS CAMINHOS
+===================================================== -->
+<section class="slide" id="s9" aria-label="Os dois caminhos">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:30vw;height:30vw;bottom:0;left:0;background:radial-gradient(circle,rgba(249,168,212,0.08) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 3 · O mapa</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">Os dois caminhos: Discovery e Delivery</h2>
+
+    <div class="paths-grid reveal d3">
+      <!-- Caminho A -->
+      <div class="glass path-card" style="border-color:rgba(167,139,250,0.2);background:var(--pm-gb);">
+        <div class="path-label" style="color:var(--pm);">Caminho A — Projeto de Discovery</div>
+        <ul class="path-steps">
+          <li class="path-step"><span class="step-num">1.</span><span>Escopo indefinido — PM cria <strong>briefing</strong> (não spec)</span></li>
+          <li class="path-step"><span class="step-num">2.</span><span>Designer explora livremente</span></li>
+          <li class="path-step"><span class="step-num">3.</span><span><span class="milestone-badge">M1</span> Direção validada — PM fecha spec</span></li>
+          <li class="path-step"><span class="step-num">4.</span><span><span class="milestone-badge">M2</span> Spec aprovada → Build começa</span></li>
+        </ul>
+        <p style="margin-top:0.8rem;font-size:var(--small);color:var(--text3);">Use quando o problema é claro, mas o escopo ainda será definido com o Designer.</p>
+      </div>
+
+      <!-- Caminho B -->
+      <div class="glass path-card" style="border-color:rgba(96,165,250,0.2);background:rgba(96,165,250,0.04);">
+        <div class="path-label" style="color:#60a5fa;">Caminho B — Discovery como Milestone</div>
+        <ul class="path-steps">
+          <li class="path-step"><span class="step-num">1.</span><span>Problema claro — PM cria spec desde o início</span></li>
+          <li class="path-step"><span class="step-num">2.</span><span><span class="milestone-badge">M1</span> Discovery concluído — direção aprovada</span></li>
+          <li class="path-step"><span class="step-num">3.</span><span><span class="milestone-badge">M2</span> Spec final → Engenharia entra</span></li>
+        </ul>
+        <p style="margin-top:0.8rem;font-size:var(--small);color:var(--text3);">Use quando o discovery é uma fase curta e bem delimitada dentro de um projeto maior.</p>
+      </div>
+    </div>
+
+    <div class="antipattern-box reveal d4">
+      <span>⚠</span>
+      <span><strong>Anti-pattern:</strong> Esperar o escopo estar completo para criar o projeto = discovery sem estrutura, sem milestone, sem contexto compartilhado.</span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 10 — PAPÉIS POR CENÁRIO
+===================================================== -->
+<section class="slide" id="s10" aria-label="Papéis por cenário">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:30vw;height:30vw;top:0;right:0;background:radial-gradient(circle,rgba(110,231,183,0.08) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 3 · O mapa</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">Quem faz o quê em cada fase</h2>
+
+    <div class="scenario-grid reveal d3">
+      <!-- Header row -->
+      <div class="scenario-cell scenario-header" style="border-radius:var(--radius) 0 0 0;">Papel</div>
+      <div class="scenario-cell scenario-header" style="color:var(--pm);">Discovery</div>
+      <div class="scenario-cell scenario-header" style="color:var(--eng);border-radius:0 var(--radius) 0 0;">Delivery</div>
+
+      <!-- PM -->
+      <div class="scenario-cell scenario-role"><span class="badge badge-pm" style="writing-mode:initial;">PM</span></div>
+      <div class="scenario-cell">
+        <div class="scenario-actions">
+          <span>Cria briefing com problema e critérios de saída</span>
+          <span>Define o que está <em>fora</em> do escopo</span>
+          <span>Valida direção no Milestone 1</span>
+        </div>
+      </div>
+      <div class="scenario-cell">
+        <div class="scenario-actions">
+          <span>Converte briefing em spec completa</span>
+          <span>Define critérios de aceite binários</span>
+          <span>Fecha escopo e libera Milestone 2</span>
+        </div>
+      </div>
+
+      <!-- PD -->
+      <div class="scenario-cell scenario-role"><span class="badge badge-pd" style="writing-mode:initial;">PD</span></div>
+      <div class="scenario-cell">
+        <div class="scenario-actions">
+          <span>Issue: "Explorar direções de design"</span>
+          <span>Issue: "Validar protótipo com usuários"</span>
+          <span>Liberdade criativa total — sem critérios rígidos</span>
+        </div>
+      </div>
+      <div class="scenario-cell">
+        <div class="scenario-actions">
+          <span>Issue: "Design tela X"</span>
+          <span>Issue: "Alinhar handover com Eng"</span>
+          <span>Cada issue atômica e fechada</span>
+        </div>
+      </div>
+
+      <!-- Eng -->
+      <div class="scenario-cell scenario-role" style="border-radius:0 0 0 var(--radius);"><span class="badge badge-eng" style="writing-mode:initial;">Eng</span></div>
+      <div class="scenario-cell">
+        <div class="scenario-actions">
+          <span>Ainda não entra em build</span>
+          <span>Pode dar input técnico no M1</span>
+        </div>
+      </div>
+      <div class="scenario-cell" style="border-radius:0 0 var(--radius) 0;">
+        <div class="scenario-actions">
+          <span>Entra após Milestone 2 aprovado</span>
+          <span>Cria as próprias issues técnicas</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="antipattern-box reveal d4 hide-small">
+      <span>⚠</span>
+      <span><strong>Anti-pattern:</strong> PM criando issues para o Designer = Designer perde ownership e o raciocínio de quem entende o trabalho.</span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 11 — O QUE O PM FAZ NO LINEAR
+===================================================== -->
+<section class="slide" id="s11" aria-label="O que o PM faz no Linear">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:35vw;height:35vw;bottom:-5%;right:-5%;background:radial-gradient(circle,rgba(167,139,250,0.12) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 3 · O mapa</div>
+    <div class="accent-line reveal d2" style="background:linear-gradient(90deg,var(--pm-d),var(--pm));"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">O que o PM faz no Linear</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(0.8rem,2vw,2rem);" class="reveal d3">
+      <!-- Regra de ouro -->
+      <div>
+        <div class="glass" style="padding:clamp(0.8rem,2vh,1.6rem);border-color:rgba(167,139,250,0.2);background:var(--pm-gb);margin-bottom:clamp(0.5rem,1.2vh,1rem);">
+          <p style="font-size:var(--small);color:var(--pm);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Regra de ouro — títulos</p>
+          <p style="font-size:var(--body);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;color:var(--text);line-height:1.4;">
+            [Verbo imperativo] + [Ação] + [Valor para o negócio]
+          </p>
+        </div>
+
+        <div class="glass" style="padding:clamp(0.6rem,1.5vh,1.2rem);margin-bottom:6px;border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.04);">
+          <span style="font-size:var(--small);color:#f87171;">❌ Ruim</span><br>
+          <span style="font-size:var(--body);color:var(--text2);">Acompanhamento do professor</span>
+        </div>
+        <div class="glass" style="padding:clamp(0.6rem,1.5vh,1.2rem);border-color:rgba(110,231,183,0.2);background:var(--eng-gb);">
+          <span style="font-size:var(--small);color:var(--eng);">✓ Bom</span><br>
+          <span style="font-size:var(--body);color:var(--text);">Garantir visibilidade do professor sobre envios das equipes</span>
+        </div>
+      </div>
+
+      <!-- Briefing vs Spec -->
+      <div class="glass" style="padding:clamp(0.8rem,2vh,1.6rem);display:flex;flex-direction:column;gap:clamp(0.5rem,1.2vh,1rem);">
+        <p style="font-size:var(--small);color:var(--pm);font-family:'JetBrains Mono',monospace;margin-bottom:2px;">Briefing vs. Spec</p>
+
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:8px;align-items:baseline;">
+            <span style="color:var(--pm);font-size:var(--small);min-width:80px;font-family:'JetBrains Mono',monospace;">Briefing</span>
+            <span style="font-size:var(--body);color:var(--text2);">Discovery aberto — problema + critérios de saída</span>
+          </div>
+          <div style="height:1px;background:var(--border);"></div>
+          <div style="display:flex;gap:8px;align-items:baseline;">
+            <span style="color:var(--eng);font-size:var(--small);min-width:80px;font-family:'JetBrains Mono',monospace;">Spec</span>
+            <span style="font-size:var(--body);color:var(--text2);">Build — escopo fechado, critérios de aceite binários</span>
+          </div>
+        </div>
+
+        <div style="padding:clamp(0.4rem,0.8vh,0.8rem);background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border);">
+          <p style="font-size:var(--small);color:var(--text3);">Use <code>/linear-spec</code> para estruturar qualquer um dos dois com o assistente treinado no seu processo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 12 — O QUE O TIME FAZ NO LINEAR
+===================================================== -->
+<section class="slide" id="s12" aria-label="O que o time faz no Linear">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:30vw;height:30vw;top:0;left:0;background:radial-gradient(circle,rgba(110,231,183,0.1) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 3 · O mapa</div>
+    <div class="accent-line reveal d2" style="background:linear-gradient(90deg,var(--eng-d),var(--eng));"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">O que o time faz no Linear</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(0.8rem,2vw,2rem);" class="reveal d3">
+      <!-- Issue example -->
+      <div>
+        <p style="font-size:var(--small);color:var(--text3);margin-bottom:8px;font-family:'JetBrains Mono',monospace;">Exemplo — estrutura de issues</p>
+        <div class="glass issue-tree" style="padding:clamp(0.8rem,2vh,1.5rem);">
+          <div class="issue-parent">
+            <span style="color:var(--eng);font-size:var(--small);">📦 Issue Pai — VALOR</span><br>
+            <span style="font-size:var(--body);color:var(--text);font-weight:600;">Validar código 2FA e liberar acesso ao Portal</span>
+          </div>
+          <div class="issue-children">
+            <div class="glass issue-child" style="border-color:rgba(167,139,250,0.2);background:var(--pm-gb);">
+              <span class="issue-tag tag-bff">[BFF]</span>
+              <span style="color:var(--text2);font-size:var(--small);">Criar endpoint /login/2fa/verify</span>
+            </div>
+            <div class="glass issue-child" style="border-color:rgba(79,110,247,0.2);background:rgba(79,110,247,0.04);">
+              <span class="issue-tag tag-front">[Frontend]</span>
+              <span style="color:var(--text2);font-size:var(--small);">Criar tela "Digite seu código" com input 6 dígitos</span>
+            </div>
+            <div class="glass issue-child" style="border-color:rgba(110,231,183,0.2);background:var(--eng-gb);">
+              <span class="issue-tag tag-infra">[Frontend]</span>
+              <span style="color:var(--text2);font-size:var(--small);">Exibir erro quando código inválido</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Principles -->
+      <div style="display:flex;flex-direction:column;gap:clamp(0.5rem,1.2vh,1rem);">
+        <div class="glass" style="padding:clamp(0.6rem,1.5vh,1.2rem);border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.04);">
+          <span style="font-size:var(--small);color:#f87171;font-family:'JetBrains Mono',monospace;">❌ Ruim</span><br>
+          <code style="color:var(--text2);background:transparent;border:none;padding:0;">[2FA][25hF][35hB] Tela de código + validação</code>
+        </div>
+        <div class="glass" style="padding:clamp(0.6rem,1.5vh,1.2rem);border-color:rgba(110,231,183,0.2);background:var(--eng-gb);">
+          <span style="font-size:var(--small);color:var(--eng);font-family:'JetBrains Mono',monospace;">✓ Bom</span><br>
+          <span style="font-size:var(--body);color:var(--text);">Validar código 2FA e liberar acesso ao Portal</span>
+        </div>
+
+        <div class="glass" style="padding:clamp(0.6rem,1.5vh,1.2rem);">
+          <p style="font-size:var(--small);color:var(--text3);line-height:1.6;">
+            <span style="color:var(--text2);">Issue Pai</span> = valor entregue (sem prefixo técnico, sem estimativa no título)<br>
+            <span style="color:var(--text2);">Sub-issue</span> = implementação com <code>[BFF]</code>, <code>[Frontend]</code>, <code>[Infra]</code>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 13 — COMO FAZER HOJE
+===================================================== -->
+<section class="slide" id="s13" aria-label="Como fazer hoje">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:45vw;height:45vw;top:-15%;left:-10%;background:radial-gradient(circle,rgba(79,110,247,0.15) 0%,transparent 70%);"></div>
+    <div class="orb" style="width:35vw;height:35vw;bottom:-10%;right:-5%;background:radial-gradient(circle,rgba(110,231,183,0.1) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body">
+    <div class="eyebrow reveal d1">Ato 4 · A prática</div>
+    <div class="accent-line reveal d2"></div>
+    <h2 class="reveal d2" style="margin-bottom:clamp(0.8rem,2.5vh,2rem);">Como fazer hoje</h2>
+
+    <div class="skill-grid">
+      <div class="glass skill-card pm-card reveal d3" style="border-color:rgba(167,139,250,0.25);">
+        <div class="who-card-accent" style="background:linear-gradient(90deg,var(--pm-d),var(--pm));height:3px;border-radius:2px;"></div>
+        <span class="badge badge-pm" style="align-self:flex-start;">Para o PM</span>
+        <div class="skill-cmd grad-pm">/linear-spec</div>
+        <p class="skill-desc">Assistente para estruturar Iniciativas, Projetos e Milestones. Já conhece o processo do nosso time e a regra de ouro de títulos.</p>
+        <ul class="skill-items">
+          <li><code>/linear-spec create</code> — nova Iniciativa ou Projeto</li>
+          <li><code>/linear-spec brief</code> — briefing para discovery</li>
+          <li><code>/linear-spec validate</code> — validar item existente</li>
+        </ul>
+      </div>
+
+      <div class="glass skill-card eng-card reveal d4" style="border-color:rgba(110,231,183,0.25);">
+        <div class="who-card-accent" style="background:linear-gradient(90deg,var(--eng-d),var(--eng));height:3px;border-radius:2px;"></div>
+        <span class="badge badge-eng" style="align-self:flex-start;">Para o time</span>
+        <div class="skill-cmd grad-eng">/linear-issues</div>
+        <p class="skill-desc">Assistente para estruturar issues e sub-issues. Garante que issue pai foca em valor e sub-issues têm prefixos técnicos corretos.</p>
+        <ul class="skill-items">
+          <li><code>/linear-issues create</code> — estruturar nova issue</li>
+          <li><code>/linear-issues validate CLMS-1234</code> — validar issue</li>
+          <li><code>/linear-issues help</code> — exemplos e boas práticas</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="glass reveal d5 hide-small" style="margin-top:clamp(0.6rem,1.5vh,1.5rem);padding:clamp(0.6rem,1.2vh,1rem) clamp(1rem,2vw,1.5rem);border-color:rgba(79,110,247,0.2);background:rgba(79,110,247,0.05);display:flex;align-items:center;gap:8px;">
+      <span>💡</span>
+      <p style="font-size:var(--small);color:var(--text2);">Ambos os skills rodam direto no Claude Code — no mesmo ambiente onde você já trabalha.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     SLIDE 14 — ENCERRAMENTO
+===================================================== -->
+<section class="slide" id="s14" aria-label="Encerramento">
+  <div class="slide-bg">
+    <div class="grid-lines"></div>
+    <div class="orb" style="width:60vw;height:60vw;top:-20%;left:-20%;background:radial-gradient(circle,rgba(99,102,241,0.15) 0%,transparent 70%);"></div>
+    <div class="orb" style="width:40vw;height:40vw;bottom:-15%;right:-10%;background:radial-gradient(circle,rgba(110,231,183,0.1) 0%,transparent 70%);"></div>
+    <div class="orb" style="width:25vw;height:25vw;top:20%;right:20%;background:radial-gradient(circle,rgba(249,168,212,0.08) 0%,transparent 70%);"></div>
+  </div>
+  <div class="slide-content slide-body" style="justify-content:center;max-width:min(90vw,760px);margin:0 auto;">
+    <div class="reveal d1" style="margin-bottom:clamp(0.5rem,1.5vh,1.2rem);">
+      <span class="badge badge-neutral">Ato 4 · A prática</span>
+    </div>
+    <h2 class="reveal d2" style="font-size:var(--title);margin-bottom:clamp(0.5rem,1.5vh,1.2rem);">
+      Uma coisa para<br><span class="grad-acc">fazer essa semana</span>
+    </h2>
+
+    <div class="glass reveal d3" style="padding:clamp(1rem,2.5vh,2rem) clamp(1.2rem,2.5vw,2rem);border-color:rgba(79,110,247,0.25);background:rgba(79,110,247,0.06);margin-bottom:clamp(0.8rem,2vh,1.8rem);">
+      <p style="font-size:var(--h3);color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;line-height:1.3;">
+        Abra uma Iniciativa ou Projeto no Linear e use <code>/linear-spec</code> para estruturá-la.
+      </p>
+    </div>
+
+    <div style="display:flex;gap:clamp(0.5rem,1.2vw,1.2rem);flex-wrap:wrap;margin-bottom:clamp(0.8rem,2vh,1.8rem);" class="reveal d4">
+      <span class="badge badge-pm">PM → /linear-spec</span>
+      <span class="badge badge-pd">PD → issues de design próprias</span>
+      <span class="badge badge-eng">Eng → issues técnicas próprias</span>
+    </div>
+
+    <p class="reveal d5 hide-small" style="font-size:var(--body);color:var(--text3);text-align:center;margin-top:clamp(0.5rem,1.5vh,1.2rem);">
+      Perguntas? Dúvidas? Compartilhe no canal do time.
+    </p>
+  </div>
+</section>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+=========================================== */
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.total = this.slides.length;
+    this.current = 0;
+    this.wheelLock = false;
+
+    this.setupNavDots();
+    this.setupObserver();
+    this.setupKeyboard();
+    this.setupTouch();
+    this.setupWheel();
+  }
+
+  setupNavDots() {
+    const nav = document.getElementById('nav-dots');
+    this.slides.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Ir para slide ${i + 1}`);
+      dot.addEventListener('click', () => this.goTo(i));
+      nav.appendChild(dot);
+    });
+    this.dots = Array.from(nav.querySelectorAll('.nav-dot'));
+  }
+
+  setupObserver() {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          this.current = this.slides.indexOf(entry.target);
+          this.updateUI();
+        }
+      });
+    }, { threshold: 0.55 });
+    this.slides.forEach(s => obs.observe(s));
+  }
+
+  updateUI() {
+    const idx = this.current;
+    document.getElementById('slide-counter').textContent =
+      `${String(idx + 1).padStart(2,'0')} / ${String(this.total).padStart(2,'0')}`;
+    document.getElementById('progress-bar').style.width =
+      `${((idx + 1) / this.total) * 100}%`;
+    this.dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  goTo(idx) {
+    const target = Math.max(0, Math.min(this.total - 1, idx));
+    this.slides[target].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  setupKeyboard() {
+    document.addEventListener('keydown', e => {
+      if (['ArrowDown','ArrowRight',' '].includes(e.key)) { e.preventDefault(); this.goTo(this.current + 1); }
+      if (['ArrowUp','ArrowLeft'].includes(e.key)) { e.preventDefault(); this.goTo(this.current - 1); }
+    });
+  }
+
+  setupTouch() {
+    let startY = 0, startX = 0;
+    document.addEventListener('touchstart', e => { startY = e.touches[0].clientY; startX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const dy = startY - e.changedTouches[0].clientY;
+      const dx = startX - e.changedTouches[0].clientX;
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) this.goTo(this.current + (dy > 0 ? 1 : -1));
+    }, { passive: true });
+  }
+
+  setupWheel() {
+    document.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (this.wheelLock) return;
+      this.wheelLock = true;
+      setTimeout(() => { this.wheelLock = false; }, 900);
+      this.goTo(this.current + (e.deltaY > 0 ? 1 : -1));
+    }, { passive: false });
+  }
+}
+
+new SlidePresentation();
+</script>
+</body>
+</html>
