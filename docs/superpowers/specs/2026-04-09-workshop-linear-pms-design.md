@@ -60,7 +60,7 @@ Workshop de 30–45 minutos para PMs sobre a mudança de Gestão de Requisitos d
 
 ---
 
-### Ato 2 — A virada (~12 min)
+### Ato 2 — A virada (~17 min)
 
 **Slide 04 — Por que o Linear?**
 - Mensagem: decisão estratégica — ferramenta construída para times de produto com autonomia real.
@@ -75,7 +75,17 @@ Workshop de 30–45 minutos para PMs sobre a mudança de Gestão de Requisitos d
 - Visual: 4 cards premium com ícone + frase de impacto + explicação curta
 - Fonte: Linear Method (documentação oficial)
 
-**Slide 06 — Quem escreve o quê ⭐ (slide central)**
+**Slide 06 — Do Épico ao Projeto: a virada de mentalidade**
+- Mensagem central: o Projeto no Linear não é só o "Épico renomeado" — é uma mudança de filosofia sobre como entregar valor.
+- Storytelling em dois tempos:
+  - **O mundo do Épico (Jira):** entregas grandes, ciclo longo. Usuários e stakeholders esperavam meses para ver impacto. O progresso era invisível durante a execução. Cada sprint era um esforço para "fechar o épico" — o famoso sprint heroico.
+  - **O mundo do Projeto (Linear):** entrega de valor menor viável, concluída em até 2 cycles (~4 semanas). Cada projeto tem começo, meio e fim visíveis. Stakeholders veem impacto mais cedo. O time sente progresso real.
+- O que viabiliza isso: **planejamento de longo prazo contínuo** — backlog sempre alimentado, Iniciativas como bússola, Projetos segmentando a entrega em fatias de valor reais.
+- Mensagem final do slide: "A mentalidade de projeto não é fazer menos — é entregar mais, de forma que todos consigam ver."
+- Visual: comparativo lado a lado — linha do tempo do Épico (longa, usuário vê valor só no fim) vs. linha do tempo com múltiplos Projetos (valor entregue a cada ciclo, progresso visível)
+- Detalhe visual: barra de progresso do Épico quase sempre em 60–70% (nunca parece acabar) vs. projetos concluídos sequencialmente com check verde
+
+**Slide 07 — Quem escreve o quê ⭐ (slide central)**
 - Mensagem: o novo modelo de ownership distribuído
 - Visual: diagrama de 3 colunas (PM / PD / Eng) com sistema de cores por papel, mostrando o que cada um cria no Linear
   - PM: Iniciativas, Projetos, Milestones
@@ -86,7 +96,7 @@ Workshop de 30–45 minutos para PMs sobre a mudança de Gestão de Requisitos d
 
 ### Ato 3 — O mapa (~14 min)
 
-**Slide 07 — A hierarquia do Linear**
+**Slide 08 — A hierarquia do Linear**
 - Diagrama vertical: Iniciativa → Projeto → Milestone → Issue
 - Para cada nível: nome + pergunta que responde + quem é responsável + horizonte de tempo
   - Iniciativa: "Qual a aposta estratégica?" · PM · Trimestre/Semestre
@@ -95,28 +105,28 @@ Workshop de 30–45 minutos para PMs sobre a mudança de Gestão de Requisitos d
   - Issue: "O que precisa ser feito?" · Time · Dias
 - Visual: linha vertical conectando os níveis, cor degradê do topo (roxo) ao fundo (verde)
 
-**Slide 08 — Os dois caminhos: Discovery e Delivery**
+**Slide 09 — Os dois caminhos: Discovery e Delivery**
 - Dois caminhos lado a lado:
   - **Caminho A — Projeto de Discovery:** escopo ainda indefinido → PM cria briefing (não spec completa) → Designer explora livremente → Milestone 1 = direção validada → PM fecha spec → Build começa
   - **Caminho B — Discovery como Milestone:** problema claro → Milestone 1 = discovery → Milestone 2 = spec aprovada → Build começa
 - Visual: dois fluxogramas compactos lado a lado com os milestones como portões de decisão
 - Anti-pattern em destaque: "Esperar escopo completo para criar o projeto = discovery sem estrutura"
 
-**Slide 09 — Papéis por cenário**
+**Slide 10 — Papéis por cenário**
 - Tabela ou diagrama com ações de cada papel em cada fase:
   - PM: cria briefing/spec, fecha escopo no M1, **não cria issues para o Designer**
   - PD: "Explorar direções", "Validar protótipo", "Design tela X" — escreve as próprias issues
   - Eng: começa após M2 (spec aprovada), cria as próprias issues técnicas
 - Anti-pattern em destaque: "PM criando issues de design = Designer perde ownership e o raciocínio de quem entende o trabalho"
 
-**Slide 10 — O que o PM faz no Linear**
+**Slide 11 — O que o PM faz no Linear**
 - Foco prático: como estruturar uma Iniciativa e um Projeto
 - Regra de ouro de títulos: `[Verbo Imperativo] + [Ação] + [Valor para o Negócio]`
 - Exemplo real: título ruim vs. título bom
 - Diferença entre Briefing (discovery) e Spec completa (build)
 - Visual: card de exemplo preenchido com anatomia anotada
 
-**Slide 11 — O que o time faz no Linear**
+**Slide 12 — O que o time faz no Linear**
 - Foco prático: como estruturar issues
 - Hierarquia: Issue Pai (valor) → Sub-issues (técnica)
 - Prefixos técnicos: `[BFF]`, `[Frontend]`, `[Infra]`
@@ -127,14 +137,14 @@ Workshop de 30–45 minutos para PMs sobre a mudança de Gestão de Requisitos d
 
 ### Ato 4 — A prática (~6 min)
 
-**Slide 12 — Como fazer hoje**
+**Slide 13 — Como fazer hoje**
 - Fluxo em 2 pistas:
   - PM → usa `/linear-spec` no Claude Code para estruturar Iniciativas e Projetos
   - Time → usa `/linear-issues` no Claude Code para estruturar issues
 - Visual: cards dos dois skills com descrição e QR code / link
 - Mensagem: "a ferramenta já tem um assistente treinado no processo do nosso time"
 
-**Slide 13 — Encerramento — Call to action**
+**Slide 14 — Encerramento — Call to action**
 - Uma coisa para fazer essa semana: "Abra uma Iniciativa ou Projeto no Linear e use /linear-spec para estruturá-la"
 - Pergunta para reflexão em grupo
 - Link / canal para tirar dúvidas
