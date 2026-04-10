@@ -117,7 +117,7 @@ function responderComoPersona(persona) {
     input: prompt,
     encoding: 'utf-8',
     maxBuffer: 10 * 1024 * 1024,
-    timeout: 120_000,
+    timeout: 300_000,
   });
 
   const texto = resultado.trim();
