@@ -59,7 +59,7 @@ Esta verificação ocorre uma única vez por sessão.
 | 3 | **Projeto de Delivery** | "O que vamos construir?" | Semanas a 2-3 meses |
 | 4 | **Issue** | "Qual melhoria ou bug o PM precisa registrar?" | Dias a semanas |
 
-**Milestones não são um tipo criável standalone.** Eles aparecem como seções dentro dos templates de Discovery e Delivery, sem data-alvo — o EM é responsável por preencher datas e criar os milestones no Linear.
+**Milestones não são um tipo criável standalone via `create`.** Eles são sugeridos e criados diretamente no Linear via `save_milestone` ao final dos fluxos CREATE (Iniciativa, Discovery, Delivery) e PROMOTE — após aprovação da spec. Datas não são definidas pela skill; o EM preenche depois.
 
 ## Filosofia e Princípios
 
@@ -134,9 +134,29 @@ Use o template do tipo identificado:
 - **Projeto de Delivery**: [references/template-delivery.md](references/template-delivery.md)
 - **Issue**: [references/template-issues.md](references/template-issues.md)
 
-### Passo 4: Iterar, confirmar e Activity Update
+### Passo 4: Iterar, confirmar, Milestones e Activity Update
 
 Após aprovação da proposta, apresente a versão final em Markdown pronta para copiar.
+
+**Criação de Milestones no Linear**
+
+Para Iniciativa, Projeto de Discovery e Projeto de Delivery, sugira milestones padrão para o tipo e pergunte se deve criá-los diretamente no Linear via `save_milestone`:
+
+> "Quer que eu crie os milestones no Linear agora? Posso criar sem datas — o EM preenche depois. Sugestão para este [tipo]:
+> - [milestone 1 sugerido]
+> - [milestone 2 sugerido]"
+
+Milestones padrão por tipo:
+
+| Tipo | Milestones padrão sugeridos |
+|------|----------------------------|
+| Iniciativa | Kick-off do portfólio de projetos; Revisão de meio de período; Entrega final da iniciativa |
+| Discovery | Validar direção de design; Spec de Delivery aprovada |
+| Delivery | Concluir refinamento com engenharia; Entregar build em staging; Lançar para produção |
+
+O usuário pode ajustar os nomes antes de confirmar. Após confirmação, crie cada milestone com `save_milestone` vinculado ao projeto/iniciativa correspondente.
+
+**Activity Update**
 
 Em seguida, pergunte se deve postar um Activity Update no item pai. Apresente o rascunho antes de confirmar:
 
@@ -180,6 +200,17 @@ Compare o conteúdo do Discovery com o que o template de Delivery exige. Pergunt
 Pré-preenche com os dados do Discovery. Campo `**Discovery:**` aponta para o projeto de origem. Apresente a proposta completa para aprovação.
 
 Após aprovação, apresente a versão final em Markdown pronta para copiar.
+
+**Criação de Milestones no Linear**
+
+Sugira os milestones padrão de Delivery e pergunte se deve criá-los via `save_milestone`:
+
+> "Quer que eu crie os milestones do Delivery no Linear agora? Sem datas — o EM preenche depois:
+> - Concluir refinamento com engenharia
+> - Entregar build em staging
+> - Lançar para produção"
+
+O usuário pode ajustar os nomes antes de confirmar.
 
 ### Passo 4: Activity Updates duplos
 

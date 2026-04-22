@@ -40,12 +40,6 @@ Para avançar para Delivery:
 - [ ] Escopo fechado (dentro e fora definidos)
 - [ ] Spec de Delivery aprovada
 
-### 🚩 Milestones
-| Marco | Objetivo | Data-alvo |
-|-------|----------|-----------|
-| Validar direção de design | Go/no-go com stakeholders — ponto de decisão | — |
-| Spec de Delivery aprovada | Escopo fechado, engenharia pode iniciar planejamento | — |
-
 ### 🔗 Links
 - Figma: [link ou "Aguardando"]
 ```

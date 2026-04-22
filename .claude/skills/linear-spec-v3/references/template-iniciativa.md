@@ -29,11 +29,6 @@ Formato padrão para estruturar uma Iniciativa no Linear.
 
 ### 🔗 Dependências Externas
 - [Área/Time/Decisão]: [o que está pendente ou precisa acontecer primeiro]
-
-### 🚩 Milestones Centrais
-| Marco | Objetivo | Data-alvo |
-|-------|----------|-----------|
-| [nome do marco] | [o que valida] | [data] |
 ```
 
 ---

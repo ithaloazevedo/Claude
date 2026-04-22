@@ -38,11 +38,6 @@ Use quando o Discovery foi concluído — direção validada, escopo fechado, en
 **[Área funcional 2]**
 - [ ] [comportamento específico e testável]
 
-### 🚩 Milestones
-| Marco | Objetivo | Data-alvo |
-|-------|----------|-----------|
-| [nome] | [o que valida] | — |
-
 ### 🔗 Links
 - Figma: [link]
 - Discovery: [link]
@@ -122,13 +117,6 @@ A navegação atual usa um menu dropdown ("Meus Materiais") que a maioria dos us
 - [ ] Padrão completo: com histórico + curadoria ativa
 - [ ] Primeiro acesso: sem histórico, sem curadoria — apenas Conteúdos
 - [ ] Busca com resultado / Busca sem resultado / Loading / Pasta vazia / Erro de carregamento
-
-### 🚩 Milestones
-| Marco | Objetivo | Data-alvo |
-|-------|----------|-----------|
-| Concluir refinamento com engenharia | Escopo técnico alinhado, issues criadas | — |
-| Entregar build em staging | Validação interna antes do lançamento | — |
-| Lançar nova Biblioteca para produção | Disponibilizar para 100% dos usuários | — |
 
 ### 🔗 Links
 - Figma: [Navegabilidade Plus](https://www.figma.com/...)
