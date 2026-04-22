@@ -22,12 +22,9 @@ Para o contexto completo sobre o fluxo de discovery e design: [discovery-e-desig
 ### 🧠 Contexto e Problema
 [Bloco narrativo com o porquê real. Inclua: personas afetadas, dados ou métricas que justificam o problema, tensões e riscos que tornam a solução não trivial. Quanto mais específico, melhor o ponto de partida para o Designer.]
 
-### 📋 Escopo
-✅ **Dentro:**
-- [O que será explorado / prototipado]
-
+### 📋 Restrições conhecidas
 🚫 **Fora:**
-- [Restrições já conhecidas do espaço de solução]
+- [Restrições já conhecidas do espaço de solução — o que a solução não pode ou não deve fazer]
 
 ### 🔍 Questões em aberto
 - [ ] [O que o discovery precisa responder 1]
@@ -65,13 +62,7 @@ Descobrir como evoluir a Biblioteca de Conteúdos para que professores encontrem
 ### 🧠 Contexto e Problema
 Hoje a Biblioteca não tem hierarquia de informações eficaz. Usuários não percebem que precisam interagir com determinados elementos para visualizar categorias. Quando nenhum destaque é configurado manualmente, a home aparece vazia — recursos valiosos ficam invisíveis. O padrão aparece em múltiplas fontes: chamados de 2025 registram que *"professores têm dificuldade de localizar materiais específicos"*; a feature de busca é pouco utilizada; o NPS 2025.2 do Nave à Vela concentra críticas em encontrabilidade. O time pedagógico produz volume expressivo de recursos que chegam com baixíssima visibilidade, dependendo de comunicações externas para serem descobertos.
 
-### 📋 Escopo
-✅ **Dentro:**
-- Lógica de relevância automática para surfar conteúdos sem configuração manual
-- Estrutura de categorias mais acessível e intuitiva
-- Busca e filtros otimizados (múltiplos tipos de arquivo de forma integrada)
-- Destaque intencional configurável por PMM para ações pedagógicas específicas
-
+### 📋 Restrições conhecidas
 🚫 **Fora:**
 - Deve respeitar o design system atual
 - Não pode depender sempre de ação manual de PMM para exibir conteúdo relevante

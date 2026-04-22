@@ -3,7 +3,7 @@ name: linear-spec
 description: |
   Estrutura e valida itens no Linear seguindo a hierarquia: Iniciativa → Projeto de Discovery → Projeto de Delivery → Issue.
   Use para: criar Iniciativas estratégicas, Projetos de Discovery e Delivery, Issues de PM (Improvement/Bug), promover Discovery em Delivery, e validar itens existentes.
-  Comandos: /linear-spec create, /linear-spec promote [ID], /linear-spec validate [ID], /linear-spec help
+  Comandos: /linear-spec create, /linear-spec promote [ID ou nome], /linear-spec validate [ID ou nome], /linear-spec help
 ---
 
 **Autor:** Ithalo Mendes <ithalo.mendes@arcotech.io>
@@ -19,7 +19,7 @@ Assistente especializado em ajudar times de Produto (GPMs, PMs) a estruturar, ev
 | Comando | Uso | Descrição |
 |---------|-----|-----------|
 | `create` | `/linear-spec create` | Cria Iniciativa, Projeto de Discovery, Projeto de Delivery ou Issue |
-| `promote` | `/linear-spec promote [ID]` | Converte Projeto de Discovery em novo Projeto de Delivery |
+| `promote` | `/linear-spec promote [ID ou nome]` | Converte Projeto de Discovery em novo Projeto de Delivery |
 | `validate` | `/linear-spec validate [ID]` | Valida item existente e sugere melhorias |
 | `help` | `/linear-spec help` | Guia de uso, hierarquia, exemplos |
 
@@ -79,7 +79,7 @@ Para anti-patterns a evitar: [references/anti-pattern.md](references/anti-patter
 ## Comportamento Geral
 
 1. **Diagnóstico antes de gerar**: Analise o que foi fornecido, classifique o que falta em bloqueante vs. enriquecedor e resolva os bloqueantes antes de avançar.
-2. **Use o conector para consulta**: Busque dados reais (iniciativas, projetos, times) para enriquecer sugestões e evitar duplicatas. Nunca crie ou atualize itens diretamente — o output é sempre texto para o usuário decidir.
+2. **Use o conector ativamente**: Busque dados reais (iniciativas, projetos, times) para enriquecer sugestões e evitar duplicatas. Três ações requerem confirmação explícita antes de executar: (1) criação do item no Linear, (2) criação de milestones, (3) postagem de Activity Updates. Nunca execute nenhuma das três sem aprovação.
 3. **Explique suas sugestões**: Diga o porquê de cada escolha estrutural não-óbvia.
 4. **Ofereça Activity Updates**: Ao final de `create`, `promote` e `validate` (quando há melhorias), sugira um rascunho e pergunte se o usuário quer postar.
 
@@ -104,11 +104,16 @@ Analise o que o usuário forneceu e identifique o tipo de item e o que está fal
 |------|-------------|
 | Iniciativa | tipo confirmado, time, timeframe (quarter — ex: Q2 2026) |
 | Projeto de Discovery | tipo confirmado, time, Iniciativa associada |
-| Projeto de Delivery | tipo confirmado, time, Iniciativa associada, Projeto de Discovery associado |
+| Projeto de Delivery | tipo confirmado, time, Iniciativa associada |
 | Issue | tipo confirmado, time, Projeto de Delivery associado, subtipo (Improvement ou Bug) |
 
 **Se o usuário não souber distinguir Discovery de Delivery**, pergunte:
 > "O escopo já está fechado e validado com stakeholders?" — sim → Delivery / não → Discovery
+
+**Para Projetos de Delivery**, após resolver os bloqueantes, pergunte:
+> "Existe um Projeto de Discovery criado no Linear para este trabalho?"
+
+Se sim → busque e vincule. Se não → prossiga sem o campo (ele não aparece no template gerado).
 
 **Enriquecedores** — solicite após os bloqueantes, apenas quando relevantes:
 
@@ -134,54 +139,97 @@ Use o template do tipo identificado:
 - **Projeto de Delivery**: [references/template-delivery.md](references/template-delivery.md)
 - **Issue**: [references/template-issues.md](references/template-issues.md)
 
-### Passo 4: Iterar, confirmar, Milestones e Activity Update
+### Passo 4: Iterar, confirmar, criar no Linear, Milestones e Activity Update
 
-Após aprovação da proposta, apresente a versão final em Markdown pronta para copiar.
+**1. Criação no Linear**
 
-**Criação de Milestones no Linear**
+Após aprovação da proposta, pergunte:
+> "Posso criar este item no Linear agora?"
 
-Para Iniciativa, Projeto de Discovery e Projeto de Delivery, sugira milestones padrão para o tipo e pergunte se deve criá-los diretamente no Linear via `save_milestone`:
+Se sim, crie via connector e retorne o link do item criado:
+- **Iniciativa**: `save_initiative` com título, descrição, timeframe e time
+- **Discovery / Delivery**: `save_project` com título, descrição e vínculo à iniciativa
+- **Issue**: `save_issue` com título, descrição, tipo (Improvement ou Bug) e vínculo ao projeto
 
-> "Quer que eu crie os milestones no Linear agora? Posso criar sem datas — o EM preenche depois. Sugestão para este [tipo]:
-> - [milestone 1 sugerido]
-> - [milestone 2 sugerido]"
+Se não: apresente a versão final em Markdown pronta para copiar.
 
-Milestones padrão por tipo:
+**2. Milestones no Linear**
 
-| Tipo | Milestones padrão sugeridos |
-|------|----------------------------|
-| Iniciativa | Kick-off do portfólio de projetos; Revisão de meio de período; Entrega final da iniciativa |
-| Discovery | Validar direção de design; Spec de Delivery aprovada |
-| Delivery | Concluir refinamento com engenharia; Entregar build em staging; Lançar para produção |
+Analise o spec aprovado. Só sugira milestones se houver paralelização visível — múltiplas frentes de trabalho que podem correr simultaneamente. Máximo 3.
+
+Se houver paralelização clara:
+> "Identifiquei [N] frentes que podem correr em paralelo. Quer que eu crie os milestones no Linear? Sem datas — o EM preenche depois:
+> - [milestone derivado do spec 1]
+> - [milestone derivado do spec 2]"
+
+Se não houver paralelização clara, não sugira milestones.
 
 O usuário pode ajustar os nomes antes de confirmar. Após confirmação, crie cada milestone com `save_milestone` vinculado ao projeto/iniciativa correspondente.
 
-**Activity Update**
+**3. Activity Update**
 
-Em seguida, pergunte se deve postar um Activity Update no item pai. Apresente o rascunho antes de confirmar:
+Pergunte se deve postar um Activity Update. Apresente o rascunho antes de confirmar — use formato narrativo (contexto → decisão → próximo passo):
 
 **Para Iniciativa criada** → update na própria Iniciativa:
-> *"[Nome da Iniciativa] criada para [Quarter]. Portfólio inicial: [N] projetos mapeados. Próximo passo: iniciar Discovery de [Projeto 1]."*
+```
+[Nome da Iniciativa] — [Quarter]
+
+[1 parágrafo com a aposta estratégica e o porquê de agora]
+
+Portfólio inicial:
+- [Projeto 1 — objetivo em uma linha]
+- [Projeto N]
+
+Próximo passo: [primeiro Discovery ou ação concreta].
+```
 
 **Para Projeto de Discovery criado** → update na Iniciativa associada:
-> *"Projeto de Discovery '[nome]' criado — objetivo: [objetivo em 1 frase]. Próximo passo: [Milestone 1]."*
+```
+Discovery iniciado: [Nome do Projeto]
+
+[1 parágrafo com o problema central e o que o discovery precisa responder]
+
+Questões em aberto:
+- [questão 1]
+- [questão N]
+
+Próximo passo: [Milestone 1 ou ação concreta].
+```
 
 **Para Projeto de Delivery criado** → update na Iniciativa associada:
-> *"Projeto de Delivery '[nome]' criado a partir do Discovery '[discovery]'. Build iniciando — [milestone 1]."*
+```
+Delivery iniciado: [Nome do Projeto]
+
+[1 parágrafo com o que foi decidido e o que será construído]
+
+Escopo do build:
+- [capacidade 1 — linguagem de usuário]
+- [capacidade N]
+
+Próximo passo: [refinamento com engenharia / milestone 1].
+```
+
+**4. Bug + Slack: fechar o loop**
+
+Se o usuário forneceu um link de thread do Slack como evidência ao criar um Bug, após criar a issue no Linear, pergunte:
+> "Quer que eu responda à thread do Slack com o link do Linear?"
+
+Se sim → use `slack_send_message` para postar o link do issue como reply na thread.
 
 ---
 
 ## Fluxo: PROMOTE
 
-`/linear-spec promote [PROJ-ID]`
+`/linear-spec promote [ID ou nome parcial]`
 
 Converte um Projeto de Discovery existente em um novo Projeto de Delivery.
 
 ### Passo 1: Buscar o Discovery
 
-Busque o Projeto de Discovery no Linear pelo ID fornecido. Extraia: objetivo, contexto, questões em aberto, critérios de saída, links.
+Busque o Projeto de Discovery no Linear pelo ID ou nome parcial fornecido. Extraia: objetivo, contexto, questões em aberto, critérios de saída, links.
 
 **Edge cases:**
+- **Nome ambíguo**: liste os candidatos encontrados e peça confirmação antes de continuar
 - **ID não encontrado**: peça confirmação ou nome para busca alternativa
 - **Projeto já é um Delivery**: avise e encerre — não é possível promover um Delivery
 - **Critérios de saída não estão todos marcados**: alerte o usuário antes de continuar
@@ -267,7 +315,6 @@ Pergunte qual ID ou nome do item a validar. Use o conector para buscar o item no
 | OKRs ou metas associadas? | ✅/❌ | |
 | Portfólio de Projetos mapeado? | ✅/❌ | |
 | Dependências externas documentadas? | ✅/❌ | |
-| Milestones centrais definidos? | ✅/❌ | |
 | Dono nomeado? | ✅/❌ | |
 
 #### Para Projetos de Discovery
@@ -340,7 +387,11 @@ Exiba:
 3. **Os anti-patterns mais comuns** (baseados em [references/anti-pattern.md](references/anti-pattern.md)).
 4. **Exemplos reais** de Iniciativa e Projeto de Delivery bem estruturados.
 5. **Fluxo Discovery → Delivery**: quando usar `promote` e o que ele faz.
-6. **Lembrete de escopo**: este skill não cobre issues técnicas de engenharia — para isso, use `linear-issues`.
+6. **Quando NÃO criar um Projeto**: Se o trabalho tem os três sinais abaixo, o item certo é uma Issue — não um Projeto:
+   - Cabe em 1-2 dias de trabalho de uma pessoa
+   - Não tem fases nem paralelismo
+   - Não envolve Designer nem múltiplos times
+7. **Lembrete de escopo**: este skill não cobre issues técnicas de engenharia — para isso, use `linear-issues`.
 
 ---
 
@@ -391,6 +442,7 @@ Os updates são narrativos, não one-liners. Contextualizam o momento do projeto
 Exemplos:
 - `/linear-spec create` → comando=create, iniciar diagnóstico interativo
 - `/linear-spec promote PROJ-123` → comando=promote, buscar e converter o projeto PROJ-123
+- `/linear-spec promote "Biblioteca"` → comando=promote, buscar projeto por nome parcial
 - `/linear-spec validate INI-42` → comando=validate, buscar e analisar a Iniciativa INI-42
 - `/linear-spec` (sem args) → perguntar o que o usuário deseja fazer
 
