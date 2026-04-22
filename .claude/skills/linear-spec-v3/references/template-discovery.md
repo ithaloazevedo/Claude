@@ -46,4 +46,50 @@ Para avançar para Delivery:
 
 ---
 
-> **Próximo passo**: após o Milestone 1 (direção validada), use `/linear-spec promote [PROJ-ID]` para gerar o Projeto de Delivery a partir deste Discovery.
+> **Próximo passo**: após os critérios de saída cumpridos, use `/linear-spec promote [PROJ-ID]` para gerar o Projeto de Delivery a partir deste Discovery.
+
+---
+
+## Exemplo Real: Prototipar a Biblioteca de Conteúdos do Portal Arcoplus
+
+## Prototipar a Biblioteca de Conteúdos do Portal Arcoplus
+
+**Iniciativa:** Elevar a encontrabilidade de recursos no Portal Arcoplus
+**Dono:** Ithalo Mendes
+
+---
+
+### 🎯 Objetivo
+Descobrir como evoluir a Biblioteca de Conteúdos para que professores encontrem recursos de forma autônoma — definindo a lógica de relevância automática, a estrutura de categorias e a direção de busca e filtros.
+
+### 🧠 Contexto e Problema
+Hoje a Biblioteca não tem hierarquia de informações eficaz. Usuários não percebem que precisam interagir com determinados elementos para visualizar categorias. Quando nenhum destaque é configurado manualmente, a home aparece vazia — recursos valiosos ficam invisíveis. O padrão aparece em múltiplas fontes: chamados de 2025 registram que *"professores têm dificuldade de localizar materiais específicos"*; a feature de busca é pouco utilizada; o NPS 2025.2 do Nave à Vela concentra críticas em encontrabilidade. O time pedagógico produz volume expressivo de recursos que chegam com baixíssima visibilidade, dependendo de comunicações externas para serem descobertos.
+
+### 📋 Escopo
+✅ **Dentro:**
+- Lógica de relevância automática para surfar conteúdos sem configuração manual
+- Estrutura de categorias mais acessível e intuitiva
+- Busca e filtros otimizados (múltiplos tipos de arquivo de forma integrada)
+- Destaque intencional configurável por PMM para ações pedagógicas específicas
+
+🚫 **Fora:**
+- Deve respeitar o design system atual
+- Não pode depender sempre de ação manual de PMM para exibir conteúdo relevante
+- Deve funcionar para todas as marcas do Portal Plus, com foco em Nave à Vela
+
+### 🔍 Questões em aberto
+- [ ] Qual critério define "conteúdo mais relevante" sem configuração manual (data, acesso, marca, série)?
+- [ ] Como estruturar as categorias de forma mais acessível e intuitiva?
+- [ ] Quais filtros são realmente usados vs. ignorados pelos usuários hoje?
+- [ ] Como equilibrar curadoria automática (algoritmo) e curadoria intencional (PMM)?
+- [ ] A busca atual tem dados suficientes para entender padrões de uso?
+
+### ✅ Critérios de saída
+Para avançar para Delivery:
+- [x] Lógica de relevância automática definida e validada com stakeholders pedagógicos
+- [x] Estrutura de categorias aprovada
+- [ ] Direção de design validada com ao menos um perfil de usuário real
+- [ ] Spec de Delivery aprovada
+
+### 🔗 Links
+- Figma: Aguardando
