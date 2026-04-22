@@ -270,16 +270,22 @@ Compare o conteúdo do Discovery com o que o template de Delivery exige. Pergunt
 
 Pré-preenche com os dados do Discovery. Campo `**Discovery:**` aponta para o projeto de origem. Apresente a proposta completa para aprovação.
 
-Após aprovação, apresente a versão final em Markdown pronta para copiar.
+Após aprovação, pergunte:
+> "Posso criar este Projeto de Delivery no Linear agora?"
+
+Se sim → use `save_project` com título, descrição e vínculo à iniciativa. Retorne o link do projeto criado.
+Se não → apresente a versão final em Markdown pronta para copiar.
 
 **Criação de Milestones no Linear**
 
-Sugira os milestones padrão de Delivery e pergunte se deve criá-los via `save_milestone`:
+Analise o spec aprovado. Só sugira milestones se houver paralelização visível — múltiplas frentes que podem correr simultaneamente. Máximo 3.
 
-> "Quer que eu crie os milestones do Delivery no Linear agora? Sem datas — o EM preenche depois:
-> - Concluir refinamento com engenharia
-> - Entregar build em staging
-> - Lançar para produção"
+Se houver paralelização clara:
+> "Identifiquei [N] frentes que podem correr em paralelo. Quer que eu crie os milestones no Linear? Sem datas — o EM preenche depois:
+> - [milestone derivado do spec 1]
+> - [milestone derivado do spec 2]"
+
+Se não houver paralelização clara, não sugira milestones.
 
 O usuário pode ajustar os nomes antes de confirmar.
 
@@ -357,7 +363,7 @@ Pergunte qual ID ou nome do item a validar. Use o conector para buscar o item no
 |----------|--------|------------|
 | Título imperativo com valor de negócio? | ✅/❌ | |
 | Vinculado a uma Iniciativa? | ✅/❌ | |
-| Projeto de Discovery referenciado nos Links? | ✅/❌ | |
+| Projeto de Discovery referenciado nos Links? *(quando aplicável)* | ✅/❌ | |
 | Escopo em linguagem de capacidade ("Usuário consegue...")? | ✅/❌ | |
 | Critérios de aceite agrupados por área funcional? | ✅/❌ | |
 | Critérios binários e testáveis? | ✅/❌ | |
