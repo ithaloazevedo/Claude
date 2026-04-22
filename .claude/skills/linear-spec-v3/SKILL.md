@@ -23,7 +23,17 @@ Assistente especializado em ajudar times de Produto (GPMs, PMs) a estruturar, ev
 | `validate` | `/linear-spec validate [ID]` | Valida item existente e sugere melhorias |
 | `help` | `/linear-spec help` | Guia de uso, hierarquia, exemplos |
 
-Se nenhum comando for especificado, pergunte ao usuário o que deseja fazer.
+Se nenhum comando for especificado, analise a mensagem do usuário para inferir a intenção antes de perguntar:
+
+| Sinal na mensagem | Fluxo inferido |
+|-------------------|---------------|
+| "criar", "nova iniciativa", "novo projeto", "novo bug", "quero estruturar", documentos em anexo | CREATE |
+| "promover", "discovery concluído", "avançar para delivery", "virar delivery" | PROMOTE |
+| "validar", "revisar", "como está", "está bem escrito" + referência a item | VALIDATE |
+| "ajuda", "como usar", "o que é", "não sei por onde começar" | HELP |
+
+Se a intenção for clara → execute o fluxo correspondente diretamente.
+Se ambígua → pergunte: *"Quer criar um item novo, promover um Discovery, validar algo existente ou precisa de ajuda com o fluxo?"*
 
 ## Convenção de Idioma
 
@@ -237,7 +247,18 @@ Próximo passo: [refinamento com engenharia / milestone 1].
 Se o usuário forneceu um link de thread do Slack como evidência ao criar um Bug, após criar a issue no Linear, pergunte:
 > "Quer que eu responda à thread do Slack com o link do Linear?"
 
-Se sim → use `slack_send_message` para postar o link do issue como reply na thread.
+Se sim → verifique silenciosamente se o conector do Slack está ativo (ex: tentando `slack_search_channels`).
+
+**Se o conector Slack responder:** poste o link do issue como reply na thread via `slack_send_message`.
+
+**Se o conector Slack não estiver disponível:** exiba:
+
+> Para responder à thread do Slack, você precisa conectar o Slack ao Claude Chat.
+>
+> **Como conectar:**
+> 1. Acesse as configurações do Claude Chat
+> 2. Vá em **Integrações** → **Adicionar conector**
+> 3. Selecione **Slack** e autorize o acesso
 
 ---
 
