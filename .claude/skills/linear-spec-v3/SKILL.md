@@ -89,10 +89,33 @@ Para anti-patterns a evitar: [references/anti-pattern.md](references/anti-patter
 
 ### Passo 0: Verificação do conector + descoberta de times
 
-Após confirmar que o conector está ativo, liste os times disponíveis no workspace. Apresente a lista e confirme quais times serão usados nesta sessão.
+Após confirmar que o conector está ativo:
+
+**1. Verificar times já salvos**
+
+Leia o CLAUDE.md do projeto e procure uma seção `## Times do Linear`. Se existir, use os times listados diretamente — sem perguntar ao usuário:
+> "Usando times salvos: [lista dos times]."
+
+**2. Descoberta de times (quando não há times salvos)**
+
+Liste os times disponíveis no workspace via connector. Apresente a lista e confirme quais times serão usados.
 
 Se o conector não listar times, pergunte:
 > "Quais são os times do seu workspace no Linear? (ex: Produto, Engenharia, Canais)"
+
+Após confirmação, ofereça salvar no CLAUDE.md:
+> "Quer que eu salve esses times no CLAUDE.md? Assim não preciso perguntar nas próximas sessões."
+
+Se sim → adicione ao CLAUDE.md do projeto:
+```markdown
+## Times do Linear
+- [time 1]
+- [time 2]
+```
+
+**3. Atualizar times salvos**
+
+Se o usuário disser que os times mudaram (ex: "quero atualizar os times", "os times mudaram"), repita o fluxo de descoberta e atualize a seção `## Times do Linear` no CLAUDE.md com os novos valores.
 
 ### Passo 1: Diagnóstico de contexto
 
