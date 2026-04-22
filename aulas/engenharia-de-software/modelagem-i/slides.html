@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelagem I — Engenharia de Software 2026/1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+
+/* === TEMA: PREMIUM LIGHT === */
+:root {
+  --bg-provoc:    #EFF6FF;   /* provocação slides */
+  --bg-surface:   #FFFFFF;   /* explicativo slides */
+  --bg-blue-mid:  #DBEAFE;   /* borders/highlights */
+  --text-primary: #111827;
+  --text-secondary:#6B7280;
+  --text-caption: #9CA3AF;
+  --accent:       #3B82F6;
+  --accent-dark:  #1D4ED8;
+  --accent-light: #93C5FD;
+  --accent-bg:    #EFF6FF;
+  --purple:       #8B5CF6;
+  --green:        #16A34A;
+  --green-light:  #DCFCE7;
+  --amber:        #D97706;
+  --amber-light:  #FEF3C7;
+  --red:          #DC2626;
+  --border:       #E5E7EB;
+  --border-blue:  #BFDBFE;
+  --font:         'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --title-size:   clamp(3rem, 7vw, 6.5rem);
+  --h2-size:      clamp(2rem, 4.5vw, 3.5rem);
+  --h3-size:      clamp(1.5rem, 2.8vw, 2.5rem);
+  --body-size:    clamp(1.3rem, 2.2vw, 1.9rem);
+  --small-size:   clamp(1.15rem, 1.8vw, 1.5rem);
+  --slide-padding:clamp(2rem, 5vw, 5rem);
+  --content-gap:  clamp(0.75rem, 2vw, 1.75rem);
+  --ease:         cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* === RESET === */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* === VIEWPORT BASE === */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+body { font-family: var(--font); }
+
+.slide {
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden;
+  scroll-snap-align: start;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.slide-content {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center;
+  max-height: 100%; overflow: hidden;
+  padding: var(--slide-padding);
+}
+
+/* === RESPONSIVE === */
+@media (max-height: 700px) {
+  :root {
+    --slide-padding: clamp(1rem, 3vw, 2rem);
+    --title-size:   clamp(2rem, 5vw, 3.5rem);
+    --h2-size:      clamp(1.5rem, 3.5vw, 2.5rem);
+    --body-size:    clamp(1.1rem, 1.8vw, 1.5rem);
+    --content-gap:  clamp(0.5rem, 1.5vw, 1rem);
+  }
+}
+@media (max-height: 600px) {
+  :root { --slide-padding: clamp(0.75rem, 2vw, 1.5rem); }
+  .nav-dots, .keyboard-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* === ANIMATIONS === */
+.reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: 0.05s; }
+.reveal:nth-child(2) { transition-delay: 0.12s; }
+.reveal:nth-child(3) { transition-delay: 0.20s; }
+.reveal:nth-child(4) { transition-delay: 0.28s; }
+.reveal:nth-child(5) { transition-delay: 0.36s; }
+.reveal:nth-child(6) { transition-delay: 0.44s; }
+.reveal:nth-child(7) { transition-delay: 0.52s; }
+.reveal:nth-child(8) { transition-delay: 0.60s; }
+
+/* === PROGRESS BAR === */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--accent); width: 0%; z-index: 1000;
+  transition: width 0.3s ease;
+}
+
+/* === NAV DOTS === */
+.nav-dots {
+  position: fixed; right: clamp(12px, 2vw, 20px); top: 50%;
+  transform: translateY(-50%); display: flex;
+  flex-direction: column; gap: 8px; z-index: 100;
+}
+.nav-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(0,0,0,0.18); cursor: pointer;
+  transition: all 0.3s ease; border: none;
+}
+.nav-dot.active { background: var(--accent); transform: scale(1.5); }
+
+/* === SLIDE TYPES === */
+/* Azul claro — slides de provocação */
+.provoc { background: var(--bg-provoc); color: var(--text-primary); }
+/* Branco — slides explicativos */
+.light  { background: var(--bg-surface); color: var(--text-primary); }
+
+/* === TYPOGRAPHY === */
+.title {
+  font-size: var(--title-size);
+  font-weight: 900; line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.h2 {
+  font-size: var(--h2-size);
+  font-weight: 700; line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.h3 {
+  font-size: var(--h3-size);
+  font-weight: 600; line-height: 1.3;
+}
+.body { font-size: var(--body-size); line-height: 1.65; }
+.small { font-size: var(--small-size); }
+.mono { font-family: var(--font-mono); }
+.accent-text { color: var(--accent); }
+.accent-dark-text { color: var(--accent-dark); }
+.muted { color: var(--text-secondary); }
+.caption { color: var(--text-caption); }
+
+/* Accent divider */
+.divider {
+  width: 48px; height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin: var(--content-gap) 0;
+}
+
+/* Utility */
+.mt { margin-top: var(--content-gap); }
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.gap { gap: var(--content-gap); }
+.bold { font-weight: 700; }
+
+/* === ACT LABEL === */
+.act-label {
+  font-size: var(--small-size); font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: clamp(0.5rem, 1vw, 1rem);
+  opacity: 0.8;
+}
+
+/* === ACCENT CARD (replaces dark-card) === */
+.accent-card {
+  background: white;
+  border: 1.5px solid var(--border-blue);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* === CASCATA TIMELINE === */
+.cascata-timeline {
+  display: flex; align-items: center;
+  gap: clamp(0.3rem, 0.8vw, 0.6rem);
+  flex-wrap: nowrap; overflow: hidden;
+  margin-top: var(--content-gap);
+}
+.cascata-phase {
+  flex: 1; min-width: 0;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(0.5rem, 1.2vw, 1rem) clamp(0.3rem, 0.6vw, 0.5rem);
+  text-align: center;
+  font-size: clamp(0.7rem, 1.1vw, 0.95rem);
+  font-weight: 500;
+  background: white;
+  color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cascata-phase.done {
+  background: var(--green-light); border-color: var(--green);
+  color: var(--green); font-weight: 600;
+}
+.cascata-phase.current {
+  background: var(--accent); border-color: var(--accent-dark);
+  color: white; font-weight: 700;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+}
+.cascata-arrow { color: var(--text-caption); font-size: clamp(0.8rem,1.1vw,1rem); flex-shrink: 0; }
+
+/* === UML CLASS BOX === */
+.uml-class {
+  border: 2px solid var(--border);
+  border-radius: 6px; overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: clamp(0.68rem, 1.05vw, 0.9rem);
+  background: white;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  min-width: 150px;
+}
+.uml-class-name {
+  background: var(--accent); color: white;
+  padding: clamp(0.3rem, 0.7vw, 0.55rem) clamp(0.6rem, 1.2vw, 1rem);
+  font-weight: 700; text-align: center;
+  font-size: clamp(0.68rem, 1.05vw, 0.9rem);
+}
+.uml-class-name.purple { background: var(--purple); }
+.uml-class-name.green  { background: var(--green);  }
+.uml-class-name.amber  { background: var(--amber);  }
+.uml-class-name.teal   { background: #0E7490;       }
+.uml-section {
+  border-top: 1px solid var(--border);
+  padding: clamp(0.28rem, 0.55vw, 0.45rem) clamp(0.6rem, 1.2vw, 1rem);
+  line-height: 1.7;
+}
+.uml-section .private { color: #DC2626; }
+.uml-section .public  { color: var(--green); }
+.uml-section .method  { color: var(--accent-dark); }
+
+.uml-relation {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1.05vw, 0.88rem);
+  color: var(--text-secondary); padding: 0.2rem 0;
+}
+.uml-relation .arrow { color: var(--accent); }
+.uml-relation .label { font-weight: 600; color: var(--text-primary); }
+
+/* === UML CATEGORIES === */
+.uml-categories {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(0.75rem, 1.5vw, 1.5rem);
+  margin-top: var(--content-gap);
+}
+.uml-cat { border-radius: 12px; overflow: hidden; border: 1.5px solid var(--border); }
+.uml-cat-header {
+  padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.75rem, 1.5vw, 1.25rem);
+  font-weight: 700; font-size: var(--small-size);
+}
+.uml-cat-header.structural { background: var(--accent); color: white; }
+.uml-cat-header.behavioral { background: var(--purple); color: white; }
+.uml-cat-body {
+  padding: clamp(0.75rem, 1.2vw, 1rem) clamp(0.75rem, 1.5vw, 1.25rem);
+  background: white;
+}
+.uml-cat-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.3rem 0;
+  font-size: clamp(0.78rem, 1.15vw, 0.98rem);
+  color: var(--text-primary);
+}
+.uml-cat-item .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.uml-cat-item .dot.blue   { background: var(--accent); }
+.uml-cat-item .dot.purple { background: var(--purple); }
+.uml-cat-item.highlight { font-weight: 700; color: var(--accent-dark); }
+.uml-cat-item.highlight .dot.blue { background: var(--accent-dark); width: 8px; height: 8px; }
+
+/* === QUIZ ITEMS (on provoc bg = white cards) === */
+.quiz-list {
+  display: flex; flex-direction: column;
+  gap: clamp(0.7rem, 1.3vw, 1.1rem);
+  margin-top: var(--content-gap);
+}
+.quiz-item {
+  display: flex; align-items: flex-start;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  padding: clamp(0.85rem, 1.7vw, 1.35rem);
+  background: white;
+  border: 1.5px solid var(--border-blue);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+}
+.quiz-item .q-num {
+  font-family: var(--font-mono); font-size: var(--small-size);
+  font-weight: 700; color: var(--accent); flex-shrink: 0; line-height: 1.6;
+}
+.quiz-item .q-text { font-size: var(--body-size); color: var(--text-primary); line-height: 1.5; }
+
+/* === REQ MAP GRID === */
+.req-map {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: clamp(0.4rem, 1vw, 0.85rem);
+  margin-top: var(--content-gap);
+}
+.req-card {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 10px; padding: clamp(0.6rem, 1.2vw, 1rem);
+  text-align: center; display: flex; flex-direction: column;
+  align-items: center; gap: 0.35rem;
+}
+.req-card .rc-icon { font-size: clamp(1.1rem, 1.8vw, 1.6rem); }
+.req-card .rc-name { font-weight: 700; font-size: clamp(0.72rem, 1.05vw, 0.9rem); color: var(--text-primary); line-height: 1.2; }
+.req-card .rc-sub  { font-size: clamp(0.62rem, 0.85vw, 0.78rem); color: var(--text-secondary); line-height: 1.3; }
+.req-card.blue  { border-color: var(--border-blue); }
+.req-card.green { border-color: #BBF7D0; }
+.req-card.purple{ border-color: #DDD6FE; }
+.req-card.amber { border-color: #FDE68A; }
+
+/* === BULLET LIST === */
+.bullet-list {
+  display: flex; flex-direction: column;
+  gap: clamp(0.55rem, 1.1vw, 0.9rem);
+  margin-top: var(--content-gap);
+}
+.bullet-item {
+  display: flex; align-items: flex-start;
+  gap: clamp(0.75rem, 1.4vw, 1.1rem);
+  padding: clamp(0.7rem, 1.3vw, 1.1rem);
+  border-radius: 8px;
+}
+.bullet-item .bi-dot {
+  width: clamp(7px, 1.1vw, 10px); height: clamp(7px, 1.1vw, 10px);
+  border-radius: 50%; background: var(--accent);
+  flex-shrink: 0; margin-top: 0.45em;
+}
+.bullet-item .bi-dot.purple { background: var(--purple); }
+.bullet-item .bi-dot.green  { background: var(--green); }
+.bullet-item .bi-dot.amber  { background: var(--amber); }
+.bullet-item .bi-dot.red    { background: var(--red); }
+.bullet-item .bi-text { font-size: var(--body-size); line-height: 1.5; }
+.bullet-item .bi-text strong { font-weight: 700; }
+
+/* On provoc slides: white cards with blue border */
+.provoc .bullet-item { background: white; border: 1px solid var(--border-blue); }
+/* On light slides: light blue fill */
+.light .bullet-item { background: var(--bg-provoc); border: 1px solid var(--border-blue); }
+
+/* === DT CYCLE === */
+.dt-cycle {
+  display: flex; gap: clamp(0.4rem, 1.2vw, 1rem);
+  align-items: stretch;
+  margin-top: var(--content-gap);
+}
+.dt-step {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: clamp(0.3rem, 0.7vw, 0.6rem);
+  padding: clamp(0.65rem, 1.3vw, 1.1rem) clamp(0.4rem, 0.8vw, 0.6rem);
+  border-radius: 10px; text-align: center; border: 1.5px solid transparent;
+}
+.dt-step .step-num { font-family: var(--font-mono); font-size: clamp(0.6rem,0.85vw,0.78rem); font-weight: 700; letter-spacing: 0.08em; opacity: 0.65; }
+.dt-step .step-name { font-weight: 700; font-size: clamp(0.82rem,1.25vw,1.05rem); line-height: 1.2; }
+.dt-step .step-desc { font-size: clamp(0.68rem,0.95vw,0.82rem); opacity: 0.72; line-height: 1.4; }
+.dt-step.empatizar  { background: #EFF6FF; color: #1D4ED8; border-color: var(--border-blue); }
+.dt-step.definir    { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+.dt-step.idear      { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+.dt-step.prototipar { background: #FAF5FF; color: #6D28D9; border-color: #DDD6FE; }
+.dt-step.testar     { background: #FFF1F2; color: #BE123C; border-color: #FECDD3; }
+
+/* === SPRINT DAYS === */
+.sprint-timeline { display: flex; gap: clamp(0.35rem, 1vw, 0.85rem); margin-top: var(--content-gap); }
+.sprint-day { flex: 1; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+.sprint-day-header {
+  padding: clamp(0.35rem, 0.7vw, 0.55rem);
+  font-weight: 700; text-align: center;
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.sprint-day-body { flex: 1; padding: clamp(0.45rem, 0.9vw, 0.75rem); font-size: clamp(0.68rem, 1vw, 0.85rem); line-height: 1.4; }
+.day-1 .sprint-day-header { background: #1D4ED8; color: white; }
+.day-1 .sprint-day-body   { background: #EFF6FF; color: #1D4ED8; }
+.day-2 .sprint-day-header { background: #15803D; color: white; }
+.day-2 .sprint-day-body   { background: #F0FDF4; color: #15803D; }
+.day-3 .sprint-day-header { background: #92400E; color: white; }
+.day-3 .sprint-day-body   { background: #FEF3C7; color: #92400E; }
+.day-4 .sprint-day-header { background: #6D28D9; color: white; }
+.day-4 .sprint-day-body   { background: #FAF5FF; color: #6D28D9; }
+.day-5 .sprint-day-header { background: #BE123C; color: white; }
+.day-5 .sprint-day-body   { background: #FFF1F2; color: #BE123C; }
+
+/* === PROTO LADDER === */
+.proto-ladder { display: flex; flex-direction: column-reverse; gap: clamp(0.45rem,0.9vw,0.75rem); margin-top: var(--content-gap); }
+.proto-rung {
+  border-radius: 8px; padding: clamp(0.55rem,1.1vw,0.9rem) clamp(0.85rem,1.7vw,1.4rem);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.proto-rung.low  { background: #F3F4F6; color: var(--text-primary); margin-left: 0; }
+.proto-rung.mid  { background: var(--bg-provoc); color: var(--accent-dark); margin-left: clamp(1.5rem,3vw,3rem); border: 1px solid var(--border-blue); }
+.proto-rung.high { background: var(--accent); color: white; margin-left: clamp(3rem,6vw,6rem); }
+.proto-rung-name { font-weight: 700; font-size: clamp(0.82rem,1.25vw,1.05rem); }
+.proto-rung-desc { font-size: clamp(0.68rem,1.05vw,0.88rem); opacity: 0.75; flex: 1; text-align: right; }
+
+/* === COST TABLE === */
+.cost-table { display: flex; flex-direction: column; gap: clamp(0.55rem,1.1vw,0.9rem); margin-top: var(--content-gap); }
+.cost-row {
+  display: flex; align-items: center;
+  gap: clamp(0.75rem,1.4vw,1.1rem);
+  padding: clamp(0.75rem,1.4vw,1.15rem) clamp(1rem,1.8vw,1.5rem);
+  border-radius: 10px; background: white; border: 1.5px solid var(--border);
+}
+.cost-icon { font-size: clamp(1.1rem,1.8vw,1.6rem); flex-shrink: 0; }
+.cost-label { font-weight: 600; font-size: var(--body-size); flex: 1; }
+.cost-time {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: var(--body-size); padding: 0.3em 0.8em; border-radius: 999px;
+}
+.cost-row.low  .cost-time { background: var(--green-light); color: var(--green); }
+.cost-row.mid  .cost-time { background: var(--amber-light); color: var(--amber); }
+.cost-row.high .cost-time { background: #FEE2E2; color: var(--red); }
+
+/* === JOURNEY VISUAL === */
+.journey {
+  display: flex; align-items: center;
+  gap: clamp(0.25rem,0.8vw,0.6rem);
+  flex-wrap: nowrap; overflow: hidden;
+  margin-top: var(--content-gap);
+}
+.journey-step {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.35rem;
+  padding: clamp(0.5rem,1vw,0.85rem) clamp(0.25rem,0.5vw,0.4rem);
+  border-radius: 8px; text-align: center;
+  background: white; border: 1.5px solid var(--border-blue);
+}
+.journey-step.highlight { background: var(--accent); border-color: var(--accent-dark); }
+.journey-step .js-icon  { font-size: clamp(1rem,1.6vw,1.35rem); }
+.journey-step .js-label { font-weight: 700; font-size: clamp(0.6rem,0.9vw,0.78rem); color: var(--text-primary); }
+.journey-step.highlight .js-label { color: white; }
+.journey-step .js-sub   { font-size: clamp(0.55rem,0.78vw,0.68rem); color: var(--text-secondary); line-height: 1.3; }
+.journey-step.highlight .js-sub { color: rgba(255,255,255,0.75); }
+.journey-arrow { color: var(--text-caption); font-size: clamp(0.9rem,1.3vw,1.1rem); flex-shrink: 0; }
+
+/* === NUBANK LOGO (CSS only) === */
+.nubank-logo {
+  width: clamp(55px,7vw,90px); height: clamp(55px,7vw,90px);
+  border-radius: 50%; background: #820AD1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(1.4rem,3vw,2.8rem); font-weight: 900; color: white; flex-shrink: 0;
+}
+
+/* === FUNNEL === */
+.funnel { display: flex; flex-direction: column; gap: clamp(0.38rem,0.75vw,0.6rem); margin-top: var(--content-gap); }
+.funnel-row { display: flex; align-items: center; gap: clamp(0.65rem,1.3vw,1.05rem); border-radius: 8px; overflow: hidden; }
+.funnel-phase { padding: clamp(0.45rem,0.9vw,0.75rem) clamp(0.65rem,1.3vw,1.05rem); font-weight: 700; font-size: clamp(0.72rem,1.05vw,0.9rem); white-space: nowrap; flex-shrink: 0; min-width: clamp(95px,13vw,130px); }
+.funnel-arrow-icon { color: var(--text-caption); font-size: 1.05em; flex-shrink: 0; }
+.funnel-output { font-size: clamp(0.72rem,1.05vw,0.9rem); color: var(--text-primary); flex: 1; padding: clamp(0.45rem,0.9vw,0.75rem) 0; }
+.funnel-row.f1 .funnel-phase { background: #EFF6FF; color: #1D4ED8; }
+.funnel-row.f2 .funnel-phase { background: #F0FDF4; color: #15803D; }
+.funnel-row.f3 .funnel-phase { background: #FEF3C7; color: #92400E; }
+.funnel-row.f4 .funnel-phase { background: #FAF5FF; color: #6D28D9; }
+.funnel-row.f5 .funnel-phase { background: #FFF1F2; color: #BE123C; }
+.funnel-row { background: white; border: 1px solid var(--border); }
+
+/* === HERO CARD (provoc slides — centra o conteúdo) === */
+.hero-provoc {
+  display: flex; flex-direction: column;
+  justify-content: center;
+}
+
+/* === UML USE CASE DIAGRAM === */
+.uc-diagram {
+  display: flex;
+  gap: clamp(0.5rem, 1.5vw, 1.5rem);
+  align-items: center;
+  margin-top: var(--content-gap);
+}
+.uc-actor-col { display: flex; flex-direction: column; gap: clamp(0.65rem,1.3vw,1.1rem); justify-content: center; }
+.uc-actor { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; min-width: clamp(52px,7vw,80px); }
+.uc-actor-icon { font-size: clamp(1.5rem,2.3vw,2rem); line-height: 1; }
+.uc-actor-name { font-size: clamp(0.85rem,1.2vw,1rem); font-weight: 600; text-align: center; color: var(--text-primary); line-height: 1.25; }
+.uc-system {
+  flex: 1; border: 2px solid var(--accent); border-radius: 10px;
+  padding: clamp(0.65rem,1.3vw,1.1rem);
+  display: flex; flex-direction: column; gap: clamp(0.3rem,0.7vw,0.55rem);
+}
+.uc-system-label {
+  font-weight: 700; font-size: clamp(0.85rem,1.2vw,1rem);
+  color: var(--accent-dark); text-align: center; text-transform: uppercase;
+  letter-spacing: 0.1em; border-bottom: 1px solid var(--border-blue);
+  padding-bottom: clamp(0.3rem,0.6vw,0.5rem); margin-bottom: 0.25rem;
+}
+.uc-oval {
+  border: 1.5px solid var(--border); border-radius: 999px;
+  padding: clamp(0.2rem,0.5vw,0.4rem) clamp(0.6rem,1.1vw,0.9rem);
+  font-size: clamp(0.9rem,1.3vw,1.1rem); text-align: center;
+  background: white; color: var(--text-primary);
+}
+.uc-oval.primary { border-color: var(--accent); color: var(--accent-dark); font-weight: 600; background: var(--bg-provoc); }
+.uc-oval.include-child { border-color: #DDD6FE; color: var(--purple); font-size: clamp(0.8rem,1.1vw,0.95rem); margin-left: clamp(1rem,2vw,1.75rem); }
+
+/* UML categories highlight for purple (behavioral) */
+.uml-cat-item.highlight-purple { font-weight: 700; color: var(--purple); }
+.uml-cat-item.highlight-purple .dot.purple { background: var(--purple); width: 8px; height: 8px; }
+
+/* Relationship rows */
+.uc-rel-table { display: flex; flex-direction: column; gap: clamp(0.45rem,0.9vw,0.75rem); margin-top: var(--content-gap); }
+.uc-rel-row {
+  display: flex; align-items: center; gap: clamp(0.5rem,1vw,0.85rem);
+  padding: clamp(0.65rem,1.3vw,1.05rem) clamp(0.85rem,1.6vw,1.35rem);
+  border-radius: 10px; background: white; border: 1.5px solid var(--border);
+}
+.uc-rel-tag {
+  font-family: var(--font-mono); font-size: clamp(0.6rem,0.88vw,0.76rem);
+  font-weight: 700; padding: 0.2em 0.5em; border-radius: 4px; flex-shrink: 0; white-space: nowrap;
+}
+.uc-rel-tag.include { background: var(--bg-provoc); color: var(--accent-dark); }
+.uc-rel-tag.extend  { background: #FAF5FF; color: var(--purple); }
+.uc-rel-tag.general { background: var(--green-light); color: var(--green); }
+.uc-rel-desc { font-size: var(--body-size); color: var(--text-primary); }
+.uc-rel-example { font-size: clamp(0.62rem,0.88vw,0.76rem); color: var(--text-secondary); font-family: var(--font-mono); margin-top: 0.15rem; }
+
+/* User Story → Use Case compare */
+.story-uc-compare {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: clamp(0.75rem,1.5vw,1.25rem); align-items: center;
+  margin-top: var(--content-gap);
+}
+.story-card, .uc-card {
+  border-radius: 12px; padding: clamp(0.75rem,1.5vw,1.25rem);
+  display: flex; flex-direction: column; gap: clamp(0.3rem,0.6vw,0.5rem);
+}
+.story-card { background: #FEF3C7; border: 1.5px solid #FDE68A; }
+.uc-card { background: var(--bg-provoc); border: 1.5px solid var(--border-blue); }
+.story-card-label { font-weight: 700; font-size: clamp(0.82rem,1.2vw,1rem); text-transform: uppercase; letter-spacing: 0.08em; color: #92400E; }
+.uc-card-label { font-weight: 700; font-size: clamp(0.82rem,1.2vw,1rem); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-dark); }
+.story-card-content { font-size: clamp(0.9rem,1.35vw,1.15rem); color: #92400E; font-style: italic; line-height: 1.55; }
+.uc-card-content { font-size: clamp(0.86rem,1.3vw,1.1rem); color: var(--text-primary); font-family: var(--font-mono); line-height: 1.7; }
+.compare-arrow { font-size: clamp(1.2rem,2vw,1.75rem); color: var(--accent); text-align: center; }
+
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots" aria-label="Navegação de slides"></nav>
+
+<!-- ==============================================
+     ATO 0 — REVISÃO DE REQUISITOS
+     ============================================== -->
+
+<!-- SLIDE 0: Capa — provocação -->
+<section class="slide provoc" data-act="0">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">ATO 0 · Revisão</div>
+    <h1 class="reveal title" style="color: var(--text-primary); max-width: 14ch;">
+      Antes de<br>começar:
+    </h1>
+    <p class="reveal h2 mt" style="color: var(--accent-dark); font-weight: 300; font-style: italic;">
+      você ainda lembra?
+    </p>
+    <div class="reveal divider mt"></div>
+    <p class="reveal small mono caption" style="margin-top: 0.5rem;">
+      Engenharia de Software · TEI 162 · 10/abr/2026
+    </p>
+  </div>
+  <!-- Decorative orb -->
+  <div style="position:absolute;right:-8vw;top:50%;transform:translateY(-50%);width:clamp(180px,38vw,440px);height:clamp(180px,38vw,440px);border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.14) 0%,transparent 70%);pointer-events:none;"></div>
+</section>
+
+<!-- SLIDE 1: Quiz -->
+<section class="slide provoc" data-act="0">
+  <div class="slide-content">
+    <div class="reveal act-label">Revisão — Aqueça o motor</div>
+    <h2 class="reveal h2">Turma responde — sem olhar o caderno.</h2>
+    <div class="quiz-list reveal">
+      <div class="quiz-item">
+        <span class="q-num">01</span>
+        <span class="q-text">O que diferencia um <strong>requisito funcional</strong> de um não-funcional?</span>
+      </div>
+      <div class="quiz-item">
+        <span class="q-num">02</span>
+        <span class="q-text">Qual a diferença entre <strong>User Story</strong> e <strong>Caso de Uso</strong>?</span>
+      </div>
+      <div class="quiz-item">
+        <span class="q-num">03</span>
+        <span class="q-text">Quando um requisito pode ser considerado <strong>"pronto"</strong>?</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 2: Mapa síntese de requisitos -->
+<section class="slide light" data-act="0">
+  <div class="slide-content">
+    <div class="reveal act-label">Consolidação — Fotografa este slide</div>
+    <h2 class="reveal h2">Tudo que você viu no N1, numa tela só.</h2>
+    <div class="req-map reveal">
+      <div class="req-card blue">
+        <span class="rc-icon">⚙️</span>
+        <span class="rc-name">Req. Funcional</span>
+        <span class="rc-sub">O que o sistema FAZ</span>
+      </div>
+      <div class="req-card blue">
+        <span class="rc-icon">🔒</span>
+        <span class="rc-name">Req. Não-Funcional</span>
+        <span class="rc-sub">Desempenho, segurança, usabilidade</span>
+      </div>
+      <div class="req-card green">
+        <span class="rc-icon">📖</span>
+        <span class="rc-name">User Story</span>
+        <span class="rc-sub">Como [usuário], quero [ação]…</span>
+      </div>
+      <div class="req-card purple">
+        <span class="rc-icon">🎭</span>
+        <span class="rc-name">Caso de Uso</span>
+        <span class="rc-sub">Ator + sistema + fluxo completo</span>
+      </div>
+      <div class="req-card amber">
+        <span class="rc-icon">✅</span>
+        <span class="rc-name">Validação</span>
+        <span class="rc-sub">Critérios de aceite + negociação</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: Ponte — Cascata -->
+<section class="slide provoc" data-act="0">
+  <div class="slide-content">
+    <div class="reveal act-label">Ponte · Modelo Cascata</div>
+    <h2 class="reveal h2">Onde estamos no ciclo de vida?</h2>
+    <div class="cascata-timeline reveal">
+      <div class="cascata-phase done">Requisitos ✓</div>
+      <div class="cascata-arrow">→</div>
+      <div class="cascata-phase current">Design / Arquitetura →</div>
+      <div class="cascata-arrow">→</div>
+      <div class="cascata-phase">Implementação</div>
+      <div class="cascata-arrow">→</div>
+      <div class="cascata-phase">Testes</div>
+      <div class="cascata-arrow">→</div>
+      <div class="cascata-phase">Manutenção</div>
+    </div>
+    <p class="reveal body muted mt" style="max-width: 62ch;">
+      No Cascata, depois dos requisitos vem o <strong style="color:var(--accent-dark);">Design</strong>. Scrum ou Cascata — em algum momento você precisa <em>desenhar</em> o sistema antes de codificá-lo.
+    </p>
+  </div>
+</section>
+
+<!-- ==============================================
+     ATO 1 — ABERTURA NUBANK
+     ============================================== -->
+
+<!-- SLIDE 4: Nubank provocação -->
+<section class="slide provoc" data-act="1">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">ATO 1 · O Case</div>
+    <div class="flex items-center reveal" style="gap: clamp(1rem,2vw,2rem); margin-top: var(--content-gap);">
+      <div class="nubank-logo">N</div>
+      <div>
+        <div class="title" style="font-size: var(--h2-size); color: var(--text-primary);">Nubank</div>
+        <div class="small muted">Banco digital · Fundado 2013 · +100 milhões de clientes</div>
+      </div>
+    </div>
+    <div class="divider reveal mt"></div>
+    <h2 class="reveal h2" style="color: var(--accent-dark); margin-top: var(--content-gap);">
+      Como nasce um produto de R$&thinsp;300 bilhões?
+    </h2>
+    <p class="reveal body muted mt">Quem tem conta no Nubank? ✋ &nbsp;·&nbsp; Quem já abriu conta em banco físico?</p>
+  </div>
+</section>
+
+<!-- SLIDE 5: Impacto "Em 2013..." — white + tipografia gigante -->
+<section class="slide light" data-act="1">
+  <div class="slide-content hero-provoc">
+    <p class="reveal small mono caption" style="letter-spacing:0.15em;text-transform:uppercase;margin-bottom:clamp(1rem,2vw,1.75rem);">Brasil · 2013</p>
+    <blockquote class="reveal" style="font-size:clamp(1.5rem,3.2vw,2.8rem);font-weight:300;color:var(--text-primary);line-height:1.3;max-width:28ch;border-left:4px solid var(--accent);padding-left:clamp(1rem,2vw,1.75rem);">
+      "Abrir uma conta bancária levava <strong style="font-weight:900;color:var(--accent-dark);">40 dias</strong>, <strong style="font-weight:900;color:var(--accent-dark);">12 documentos</strong> e <strong style="font-weight:900;color:var(--accent-dark);">3 visitas</strong> à agência."
+    </blockquote>
+    <p class="reveal body muted mt" style="max-width:52ch;padding-left:clamp(1rem,2vw,1.75rem);border-left:4px solid transparent;">
+      David Vélez passou por isso. Em vez de reclamar, ele fez o que qualquer engenheiro deveria fazer: <strong style="color:var(--text-primary);">desenhou o problema antes de codificar a solução.</strong>
+    </p>
+  </div>
+</section>
+
+<!-- ==============================================
+     ATO 2 — UML: DIAGRAMA DE CASOS DE USO
+     ============================================== -->
+
+<!-- SLIDE 6: Provocação — Caso de Uso -->
+<section class="slide provoc" data-act="2">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">ATO 2 · UML</div>
+    <h1 class="reveal title" style="color:var(--text-primary);max-width:20ch;line-height:1.05;">
+      Os requisitos estão prontos. <span style="color:var(--accent-dark);">Quem faz o quê</span> no sistema?
+    </h1>
+    <p class="reveal h3 mt muted" style="font-weight:300;max-width:44ch;line-height:1.5;">
+      User Stories descrevem o que o usuário quer. UML formaliza quem age e como o sistema responde.
+    </p>
+    <div class="divider reveal mt"></div>
+    <p class="reveal body" style="color:var(--accent-dark);">A resposta: <strong>Diagrama de Casos de Uso.</strong></p>
+  </div>
+</section>
+
+<!-- SLIDE 7: O que é UML — categorias (Caso de Uso em destaque) -->
+<section class="slide light" data-act="2">
+  <div class="slide-content">
+    <div class="reveal act-label">Unified Modeling Language · ISO/IEC 19501 · desde 1997</div>
+    <h2 class="reveal h2">Dois tipos de diagrama UML.</h2>
+    <div class="uml-categories reveal">
+      <div class="uml-cat">
+        <div class="uml-cat-header structural">📐 Estruturais — o que o sistema É</div>
+        <div class="uml-cat-body">
+          <div class="uml-cat-item"><span class="dot blue"></span>Diagrama de Classes</div>
+          <div class="uml-cat-item"><span class="dot blue"></span>Diagrama de Componentes</div>
+          <div class="uml-cat-item"><span class="dot blue"></span>Diagrama de Pacotes</div>
+          <div class="uml-cat-item"><span class="dot blue"></span>Diagrama de Objetos</div>
+        </div>
+      </div>
+      <div class="uml-cat">
+        <div class="uml-cat-header behavioral">⚡ Comportamentais — o que o sistema FAZ</div>
+        <div class="uml-cat-body">
+          <div class="uml-cat-item highlight-purple"><span class="dot purple"></span><strong>Diagrama de Casos de Uso ← hoje</strong></div>
+          <div class="uml-cat-item"><span class="dot purple"></span>Diagrama de Sequência ← próxima aula</div>
+          <div class="uml-cat-item"><span class="dot purple"></span>Diagrama de Atividades ← próxima aula</div>
+          <div class="uml-cat-item"><span class="dot purple"></span>Diagrama de Estados</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: Anatomia do Diagrama de Casos de Uso -->
+<section class="slide light" data-act="2">
+  <div class="slide-content">
+    <div class="reveal act-label">Diagrama de Casos de Uso · Elementos</div>
+    <h2 class="reveal h2">Três elementos. Um propósito: quem faz o quê.</h2>
+    <div class="flex reveal mt" style="gap:clamp(1.25rem,2.5vw,2.5rem);align-items:flex-start;flex-wrap:wrap;">
+      <div class="uc-diagram" style="flex:1;min-width:clamp(180px,26vw,300px);margin-top:0;">
+        <div class="uc-actor-col">
+          <div class="uc-actor">
+            <div class="uc-actor-icon">🧑</div>
+            <div class="uc-actor-name">Ator<br>(externo)</div>
+          </div>
+        </div>
+        <div class="uc-system" style="min-width:0;">
+          <div class="uc-system-label">Sistema</div>
+          <div class="uc-oval primary">Caso de Uso</div>
+          <div class="uc-oval">Outro Caso de Uso</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:clamp(195px,26vw,340px);">
+        <div class="bullet-list" style="margin-top:0;">
+          <div class="bullet-item">
+            <div class="bi-dot"></div>
+            <div class="bi-text"><strong>Ator:</strong> qualquer entidade externa — usuário humano, outro sistema, hardware. "Quem usa."</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bi-dot green"></div>
+            <div class="bi-text"><strong>Caso de Uso (oval):</strong> uma funcionalidade que o sistema oferece ao ator. Sempre um verbo: "Abrir Conta", não "Conta".</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bi-dot amber"></div>
+            <div class="bi-text"><strong>Sistema (retângulo):</strong> o limite — o que é responsabilidade do sistema vs. o que é externo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9: Relacionamentos include / extend -->
+<section class="slide light" data-act="2">
+  <div class="slide-content">
+    <div class="reveal act-label">Diagrama de Casos de Uso · Relacionamentos</div>
+    <h2 class="reveal h2">Dois relacionamentos que você vai usar todo dia.</h2>
+    <div class="uc-rel-table reveal">
+      <div class="uc-rel-row">
+        <div>
+          <div class="uc-rel-tag include">&lt;&lt;include&gt;&gt;</div>
+        </div>
+        <div>
+          <div class="uc-rel-desc"><strong>Sempre acontece.</strong> O UC inclui outro obrigatoriamente.</div>
+          <div class="uc-rel-example">Realizar Pagamento →include→ Autenticar Usuário</div>
+        </div>
+      </div>
+      <div class="uc-rel-row">
+        <div>
+          <div class="uc-rel-tag extend">&lt;&lt;extend&gt;&gt;</div>
+        </div>
+        <div>
+          <div class="uc-rel-desc"><strong>Às vezes acontece.</strong> O UC estende outro condicionalmente.</div>
+          <div class="uc-rel-example">Visualizar Extrato →extend→ Filtrar por Data</div>
+        </div>
+      </div>
+      <div class="uc-rel-row">
+        <div>
+          <div class="uc-rel-tag general">Generalização</div>
+        </div>
+        <div>
+          <div class="uc-rel-desc"><strong>Um ator herda de outro.</strong> O cliente PJ herda tudo do cliente PF e mais.</div>
+          <div class="uc-rel-example">Cliente PJ ──▷ Cliente</div>
+        </div>
+      </div>
+    </div>
+    <div class="accent-card reveal mt">
+      <p class="body"><strong>Regra rápida:</strong> &lt;&lt;include&gt;&gt; = obrigatório &nbsp;·&nbsp; &lt;&lt;extend&gt;&gt; = opcional e condicional.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10: User Story → Caso de Uso -->
+<section class="slide light" data-act="2">
+  <div class="slide-content">
+    <div class="reveal act-label">Requisitos → UML · A Ponte</div>
+    <h2 class="reveal h2">Você já sabe escrever User Stories. Agora formalize.</h2>
+    <div class="story-uc-compare reveal">
+      <div class="story-card">
+        <div class="story-card-label">User Story (informal)</div>
+        <div class="story-card-content">"Como cliente, quero abrir uma conta pelo app sem precisar ir a uma agência."</div>
+        <div style="font-size:clamp(0.8rem,1.1vw,0.95rem);color:#92400E;opacity:0.7;margin-top:0.25rem;">Linguagem do produto</div>
+      </div>
+      <div class="compare-arrow">→</div>
+      <div class="uc-card">
+        <div class="uc-card-label">Caso de Uso (UML)</div>
+        <div class="uc-card-content">Ator: <strong>Cliente</strong><br>
+UC: <strong>Abrir Conta</strong><br>
+Sistema: App Nubank<br>
+&lt;&lt;include&gt;&gt; Validar CPF<br>
+&lt;&lt;include&gt;&gt; Tirar Selfie</div>
+      </div>
+    </div>
+    <p class="reveal small muted mt" style="max-width:58ch;">O Diagrama de Casos de Uso não inventa: ele <em>formaliza</em> o que o PM e os stakeholders já descreveram nas User Stories.</p>
+  </div>
+</section>
+
+<!-- SLIDE 11: Diagrama completo do Nubank em Caso de Uso -->
+<section class="slide light" data-act="2">
+  <div class="slide-content">
+    <div class="reveal act-label">Diagrama de Casos de Uso · Nubank — fotografa este slide</div>
+    <h2 class="reveal h2" style="font-size:clamp(1.2rem,2.2vw,1.85rem);">O que o sistema Nubank faz — na linguagem da UML.</h2>
+    <div class="uc-diagram reveal" style="align-items:stretch;">
+      <div class="uc-actor-col">
+        <div class="uc-actor">
+          <div class="uc-actor-icon">🧑</div>
+          <div class="uc-actor-name">Cliente</div>
+        </div>
+      </div>
+      <div class="uc-system">
+        <div class="uc-system-label">App Nubank</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(0.3rem,0.7vw,0.55rem);">
+          <div class="uc-oval primary">Abrir Conta</div>
+          <div class="uc-oval primary">Consultar Saldo</div>
+          <div class="uc-oval primary">Realizar Pagamento</div>
+          <div class="uc-oval primary">Transferir via Pix</div>
+          <div class="uc-oval primary">Bloquear Cartão</div>
+          <div class="uc-oval primary">Solicitar Limite</div>
+        </div>
+        <div style="border-top:1px dashed var(--border-blue);margin-top:0.3rem;padding-top:0.3rem;">
+          <div class="uc-oval include-child">&lt;&lt;include&gt;&gt; Autenticar Usuário</div>
+        </div>
+      </div>
+      <div class="uc-actor-col" style="gap:clamp(1rem,2vw,1.75rem);">
+        <div class="uc-actor">
+          <div class="uc-actor-icon">🏛️</div>
+          <div class="uc-actor-name">Banco<br>Central</div>
+        </div>
+        <div class="uc-actor">
+          <div class="uc-actor-icon">🛡️</div>
+          <div class="uc-actor-name">Antifraude</div>
+        </div>
+      </div>
+    </div>
+    <p class="reveal small caption mt" style="font-style:italic;">
+      Cliente → todos os UCs principais &nbsp;·&nbsp; Banco Central valida Pix &nbsp;·&nbsp; Antifraude monitora Pagamentos
+    </p>
+  </div>
+</section>
+
+<!-- SLIDE 12: Debate — outros atores -->
+<section class="slide provoc" data-act="2">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">Debate · 1 minuto</div>
+    <h1 class="reveal title" style="color:var(--text-primary);max-width:22ch;line-height:1.1;">
+      O Nubank tem mais atores além do <span style="color:var(--accent-dark);">Cliente</span>.
+    </h1>
+    <p class="reveal h3 mt muted" style="font-weight:300;max-width:44ch;line-height:1.5;">
+      Quem mais interage com o sistema — mesmo sem abrir o app?
+    </p>
+    <p class="reveal body mt" style="color:var(--accent-dark);">Identifique pelo menos dois atores externos. Justifique.</p>
+  </div>
+</section>
+
+<!-- SLIDE 13: Ponte → Design Thinking -->
+<section class="slide provoc" data-act="2">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">Ponte · ATO 3</div>
+    <h1 class="reveal title" style="color:var(--text-primary);max-width:22ch;line-height:1.1;">
+      O Caso de Uso formalizou <span style="color:var(--accent-dark);">quem faz o quê</span>.
+    </h1>
+    <h2 class="reveal h3 mt muted" style="font-weight:300;font-style:italic;max-width:46ch;line-height:1.5;">
+      Mas como o engenheiro do Nubank sabia que "Abrir Conta" era o caso de uso mais crítico — e não "Bloquear Cartão"?
+    </h2>
+    <div class="divider reveal mt"></div>
+    <p class="reveal body" style="color:var(--accent-dark);">Ele não adivinhou. Ele <em>descobriu</em>. A ferramenta que ensina isso chama-se <strong>Design Thinking</strong>.</p>
+  </div>
+</section>
+
+<!-- ==============================================
+     ATO 3 — DESIGN THINKING
+     ============================================== -->
+
+<!-- SLIDE 16: Provocação DT -->
+<section class="slide provoc" data-act="3">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">ATO 3 · Design Thinking</div>
+    <h1 class="reveal title" style="color:var(--text-primary);max-width:20ch;line-height:1.1;">
+      A maioria dos times modela a solução <span style="color:var(--red);">errada</span> para o problema <span style="color:var(--red);">errado</span>.
+    </h1>
+    <p class="reveal h3 mt muted" style="font-weight:300;max-width:48ch;line-height:1.5;">Não porque são ruins — porque nunca foram ensinados a <em>empatizar</em> antes de modelar.</p>
+    <div class="divider reveal mt"></div>
+    <p class="reveal body" style="color:var(--accent-dark);">Design Thinking é o antídoto.</p>
+  </div>
+</section>
+
+<!-- SLIDE 17: 5 fases DT -->
+<section class="slide light" data-act="3">
+  <div class="slide-content">
+    <div class="reveal act-label">Design Thinking · Processo</div>
+    <h2 class="reveal h2">5 fases. Não é linear — é iterativo.</h2>
+    <div class="dt-cycle reveal">
+      <div class="dt-step empatizar"><span class="step-num">01</span><span class="step-name">Empatizar</span><span class="step-desc">Observe o usuário. Sinta a dor.</span></div>
+      <div class="dt-step definir"><span class="step-num">02</span><span class="step-name">Definir</span><span class="step-desc">Qual é o problema real?</span></div>
+      <div class="dt-step idear"><span class="step-num">03</span><span class="step-name">Idear</span><span class="step-desc">Gere soluções. Sem censura.</span></div>
+      <div class="dt-step prototipar"><span class="step-num">04</span><span class="step-name">Prototipar</span><span class="step-desc">Construa algo tangível rápido.</span></div>
+      <div class="dt-step testar"><span class="step-num">05</span><span class="step-name">Testar</span><span class="step-desc">Valide com usuários reais.</span></div>
+    </div>
+    <p class="reveal small muted mt">Você volta ao início quando descobre que estava resolvendo o problema errado. Isso é saúde no projeto, não falha.</p>
+  </div>
+</section>
+
+<!-- SLIDE 18: Nubank no DT -->
+<section class="slide light" data-act="3">
+  <div class="slide-content">
+    <div class="reveal act-label">Design Thinking · Aplicado ao Nubank</div>
+    <h2 class="reveal h2">Como o Nubank usou cada fase.</h2>
+    <div class="bullet-list reveal">
+      <div class="bullet-item"><div class="bi-dot" style="background:#1D4ED8;"></div><div class="bi-text"><strong>Empatizar:</strong> David foi ao banco e viveu a burocracia na pele. Mapeou a frustração como usuário.</div></div>
+      <div class="bullet-item"><div class="bi-dot green"></div><div class="bi-text"><strong>Definir:</strong> O problema não é "banco ruim" — é "abrir conta é humilhante e burocrático". Foco no processo.</div></div>
+      <div class="bullet-item"><div class="bi-dot amber"></div><div class="bi-text"><strong>Idear:</strong> 100% digital, sem agência, sem documentos físicos, sem anuidade no cartão.</div></div>
+      <div class="bullet-item"><div class="bi-dot purple"></div><div class="bi-text"><strong>Prototipar + Testar:</strong> → próximo bloco.</div></div>
+    </div>
+    <div class="accent-card reveal mt">
+      <p class="body"><strong>O produto surgiu da fase Definir — não da fase Idear.</strong> Definir o problema certo foi o diferencial competitivo do Nubank.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 19: DT → UML funil -->
+<section class="slide light" data-act="3">
+  <div class="slide-content">
+    <div class="reveal act-label">Design Thinking → UML</div>
+    <h2 class="reveal h2">Cada fase do DT alimenta uma decisão no Diagrama de Casos de Uso.</h2>
+    <div class="funnel reveal">
+      <div class="funnel-row f1"><div class="funnel-phase">Empatizar</div><div class="funnel-arrow-icon">→</div><div class="funnel-output">Você descobre os <strong>atores</strong> (quem usa o sistema e como)</div></div>
+      <div class="funnel-row f2"><div class="funnel-phase">Definir</div><div class="funnel-arrow-icon">→</div><div class="funnel-output">Você descobre os <strong>casos de uso prioritários</strong> (não os pedidos literais)</div></div>
+      <div class="funnel-row f3"><div class="funnel-phase">Idear</div><div class="funnel-arrow-icon">→</div><div class="funnel-output">Você propõe as <strong>funcionalidades</strong> → casos de uso do sistema</div></div>
+      <div class="funnel-row f4"><div class="funnel-phase">Prototipar</div><div class="funnel-arrow-icon">→</div><div class="funnel-output">Você cria um <strong>modelo navegável</strong> → valida cada caso de uso</div></div>
+      <div class="funnel-row f5"><div class="funnel-phase">Testar</div><div class="funnel-arrow-icon">→</div><div class="funnel-output">Você <strong>valida o diagrama</strong> com usuários reais antes de codificar</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 20: Ponte DT → PRD -->
+<section class="slide provoc" data-act="3">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">Ponte · PRD</div>
+    <h1 class="reveal title" style="color:var(--text-primary);max-width:20ch;line-height:1.05;">
+      Design Thinking mapeou o problema. Quem garante que <span style="color:var(--accent-dark);">todo o time</span> entende o mesmo problema?
+    </h1>
+    <p class="reveal h3 mt muted" style="font-weight:300;max-width:44ch;line-height:1.5;">A falta de um documento claro é a causa número 1 de retrabalho em produto digital.</p>
+    <div class="divider reveal mt"></div>
+    <p class="reveal body" style="color:var(--accent-dark);">Esse documento se chama <strong>PRD — Product Requirements Document</strong>.</p>
+  </div>
+</section>
+
+<!-- SLIDE 21: PRD — Briefing vs Spec -->
+<section class="slide light" data-act="3">
+  <div class="slide-content">
+    <div class="reveal act-label">PRD · Product Requirements Document</div>
+    <h2 class="reveal h2">O PRD muda de forma dependendo da fase do projeto.</h2>
+    <div class="flex reveal mt" style="gap:clamp(0.85rem,1.8vw,1.75rem);flex-wrap:wrap;">
+      <div style="flex:1;min-width:clamp(195px,28vw,340px);background:#FEF3C7;border:1.5px solid #FDE68A;border-radius:12px;padding:clamp(1rem,2vw,1.75rem);">
+        <div style="font-size:clamp(1.2rem,1.8vw,1.5rem);margin-bottom:0.35rem;">🔍</div>
+        <div class="h3 bold" style="color:#92400E;">Briefing (Discovery)</div>
+        <p class="small mt" style="color:#92400E;opacity:0.85;">Escopo ainda indefinido. Problema claro.</p>
+        <div class="bullet-list" style="margin-top:clamp(0.5rem,1vw,0.85rem);">
+          <div class="bullet-item" style="background:#FFFBEB;border-color:#FDE68A;"><div class="bi-dot amber"></div><div class="bi-text small">Foco: dor do usuário + perguntas em aberto</div></div>
+          <div class="bullet-item" style="background:#FFFBEB;border-color:#FDE68A;"><div class="bi-dot amber"></div><div class="bi-text small">Saída: designer inicia exploração</div></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:clamp(195px,28vw,340px);background:var(--bg-provoc);border:1.5px solid var(--border-blue);border-radius:12px;padding:clamp(1rem,2vw,1.75rem);">
+        <div style="font-size:clamp(1.2rem,1.8vw,1.5rem);margin-bottom:0.35rem;">📋</div>
+        <div class="h3 bold accent-dark-text">Spec Completa (Build)</div>
+        <p class="small mt muted">Direção validada. Escopo fechado.</p>
+        <div class="bullet-list" style="margin-top:clamp(0.5rem,1vw,0.85rem);">
+          <div class="bullet-item"><div class="bi-dot"></div><div class="bi-text small">Foco: critérios de aceite binários e testáveis</div></div>
+          <div class="bullet-item"><div class="bi-dot"></div><div class="bi-text small">Saída: engenharia inicia o build</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="accent-card reveal mt">
+      <p class="body"><strong>Princípio:</strong> O projeto não precisa ter escopo completo para existir. Ele precisa ter um <em>problema claro</em>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 22: Anatomia do Briefing -->
+<section class="slide light" data-act="3">
+  <div class="slide-content">
+    <div class="reveal act-label">PRD · Anatomia do Briefing</div>
+    <h2 class="reveal h2">Um bom briefing responde três perguntas.</h2>
+    <div class="bullet-list reveal">
+      <div class="bullet-item">
+        <div class="bi-dot" style="background:#92400E;"></div>
+        <div class="bi-text">
+          <strong>🧠 Por quê?</strong> — o problema, a dor do usuário, os dados que justificam.<br>
+          <span class="small muted">Ex: "Abrir conta levava 40 dias. 60% dos usuários desistiam no processo."</span>
+        </div>
+      </div>
+      <div class="bullet-item">
+        <div class="bi-dot"></div>
+        <div class="bi-text">
+          <strong>🎯 O quê?</strong> — escopo: o que está <span style="color:var(--green);font-weight:700;">dentro ✅</span> e o que está <span style="color:var(--red);font-weight:700;">fora 🚫</span>.<br>
+          <span class="small muted">Ex: ✅ Abertura 100% digital &nbsp;·&nbsp; 🚫 Conta PJ (fora do MVP)</span>
+        </div>
+      </div>
+      <div class="bullet-item">
+        <div class="bi-dot green"></div>
+        <div class="bi-text">
+          <strong>✅ Como saber que está pronto?</strong> — critérios de aceite binários e testáveis.<br>
+          <span class="small muted">Ex: "4 de 5 usuários abrem conta sem ajuda em menos de 5 minutos."</span>
+        </div>
+      </div>
+    </div>
+    <p class="reveal small muted mt" style="font-style:italic;max-width:58ch;">O PM que escreve um bom briefing economiza semanas de retrabalho — e evita que o time construa a solução certa para o problema errado.</p>
+  </div>
+</section>
+
+<!-- SLIDE 23: Ponte PRD → Design Sprint -->
+<section class="slide provoc" data-act="3">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">Ponte · ATO 4</div>
+    <h1 class="reveal title" style="color:var(--text-primary);max-width:18ch;line-height:1.05;">
+      O PRD define <span style="color:var(--accent-dark);">o que construir</span>.
+    </h1>
+    <h2 class="reveal h2 mt muted" style="font-weight:300;">O Design Sprint responde: <em>funciona?</em></h2>
+    <p class="reveal h3 mt muted" style="font-style:italic;font-weight:300;max-width:38ch;line-height:1.5;">Em 5 dias, sem escrever uma linha de código.</p>
+    <div class="divider reveal mt"></div>
+    <p class="reveal body" style="color:var(--accent-dark);">Google Ventures criou o framework para isso.</p>
+  </div>
+</section>
+
+<!-- ==============================================
+     ATO 4 — DESIGN SPRINT + PROTOTIPAGEM
+     ============================================== -->
+
+<!-- SLIDE 24: O que é Design Sprint -->
+<section class="slide light" data-act="4">
+  <div class="slide-content">
+    <div class="reveal act-label">ATO 4 · Design Sprint</div>
+    <h2 class="reveal h2">5 dias para responder uma pergunta crítica.</h2>
+    <p class="reveal body muted mt" style="max-width:52ch;">Sem reuniões infinitas. Sem código. Só protótipos. <span class="mono small" style="color:var(--accent);">Sprint — Jake Knapp, Google Ventures (2016)</span></p>
+    <div class="sprint-timeline reveal mt">
+      <div class="sprint-day day-1"><div class="sprint-day-header">Seg<br>Entender</div><div class="sprint-day-body">Mapa do problema. Jornada do usuário.</div></div>
+      <div class="sprint-day day-2"><div class="sprint-day-header">Ter<br>Esboçar</div><div class="sprint-day-body">Cada membro esboça sozinho. Divergência criativa.</div></div>
+      <div class="sprint-day day-3"><div class="sprint-day-header">Qua<br>Decidir</div><div class="sprint-day-body">Time vota. Um storyboard. Uma solução.</div></div>
+      <div class="sprint-day day-4"><div class="sprint-day-header">Qui<br>Prototipar</div><div class="sprint-day-body">Protótipo em 1 dia. Sem código.</div></div>
+      <div class="sprint-day day-5"><div class="sprint-day-header">Sex<br>Testar</div><div class="sprint-day-body">5 usuários. Feedback real. Aprende ou pivota.</div></div>
+    </div>
+    <p class="reveal small muted mt" style="font-style:italic;">Na quinta-feira o Nubank tinha um protótipo. Na sexta, sabia se a ideia funcionava. Sem escrever uma linha de código.</p>
+  </div>
+</section>
+
+<!-- SLIDE 23: 3 tipos de protótipo -->
+<section class="slide light" data-act="4">
+  <div class="slide-content">
+    <div class="reveal act-label">Prototipagem · Três Fidelidades</div>
+    <h2 class="reveal h2">Você testa uma ideia de R$&thinsp;1 milhão com papel e caneta.</h2>
+    <div class="proto-ladder reveal">
+      <div class="proto-rung low"><div><div class="proto-rung-name">Baixa Fidelidade</div><div class="small muted" style="margin-top:0.2rem;">papel, post-it, rascunho à mão</div></div><div class="proto-rung-desc">Comunica a ideia. Custo: zero.</div></div>
+      <div class="proto-rung mid"><div><div class="proto-rung-name">Média Fidelidade</div><div class="small" style="margin-top:0.2rem;opacity:0.75;">wireframe digital — Balsamiq, Figma</div></div><div class="proto-rung-desc">Estrutura sem estética. Testa o fluxo.</div></div>
+      <div class="proto-rung high"><div><div class="proto-rung-name">Alta Fidelidade</div><div class="small" style="margin-top:0.2rem;opacity:0.85;">UI finalizada, clicável, dados reais</div></div><div class="proto-rung-desc">O que você entrega para o dev.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 24: Protótipo → UML ciclo -->
+<section class="slide provoc" data-act="4">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">O Ciclo Completo</div>
+    <h2 class="reveal h2">O protótipo não é o fim — é a entrada para a modelagem formal.</h2>
+    <div class="flex items-center reveal mt" style="gap:clamp(0.85rem,2vw,2rem);flex-wrap:wrap;">
+      <div style="flex:1;min-width:clamp(140px,20vw,220px);background:white;border:1.5px solid var(--border-blue);border-radius:12px;padding:clamp(0.75rem,1.5vw,1.25rem);text-align:center;">
+        <div style="font-size:clamp(1.8rem,3.5vw,3.2rem);margin-bottom:0.4rem;">📱</div>
+        <div class="small bold accent-dark-text">Protótipo<br>Alta Fidelidade</div>
+        <p class="small muted mt">Cada tela tem objetos com estado e comportamento.</p>
+      </div>
+      <div style="font-size:clamp(1.3rem,2.5vw,2.2rem);color:var(--accent);flex-shrink:0;">→</div>
+      <div style="flex:1;min-width:clamp(140px,20vw,220px);background:white;border:1.5px solid var(--border-blue);border-radius:12px;padding:clamp(0.75rem,1.5vw,1.25rem);text-align:center;">
+        <div style="font-size:clamp(1.8rem,3.5vw,3.2rem);margin-bottom:0.4rem;">🎭</div>
+        <div class="small bold accent-dark-text">Caso de Uso</div>
+        <p class="small muted mt">Cada tela confirma um ator e uma ação. O diagrama ganha precisão.</p>
+      </div>
+      <div style="font-size:clamp(1.3rem,2.5vw,2.2rem);color:var(--accent);flex-shrink:0;">→</div>
+      <div style="flex:1;min-width:clamp(140px,20vw,220px);background:white;border:1.5px solid var(--border-blue);border-radius:12px;padding:clamp(0.75rem,1.5vw,1.25rem);text-align:center;">
+        <div style="font-size:clamp(1.8rem,3.5vw,3.2rem);margin-bottom:0.4rem;">💻</div>
+        <div class="small bold accent-dark-text">Código</div>
+        <p class="small muted mt">Agora sim. Implementação de algo já validado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 25: Custo de mudar -->
+<section class="slide light" data-act="4">
+  <div class="slide-content">
+    <div class="reveal act-label">Prototipagem · Por que vale o investimento</div>
+    <h2 class="reveal h2">Prototipagem não é perda de tempo.<br>É a forma mais barata de descobrir que você está errado.</h2>
+    <div class="cost-table reveal">
+      <div class="cost-row low"><div class="cost-icon">✏️</div><div class="cost-label">Mudar um rascunho em papel</div><div class="cost-time">0 min</div></div>
+      <div class="cost-row mid"><div class="cost-icon">🖥️</div><div class="cost-label">Mudar um wireframe digital</div><div class="cost-time">~1 hora</div></div>
+      <div class="cost-row high"><div class="cost-icon">🔥</div><div class="cost-label">Mudar código em produção</div><div class="cost-time">dias ou semanas</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================================
+     ATO 5 — FECHAMENTO
+     ============================================== -->
+
+<!-- SLIDE 26: Síntese — jornada completa -->
+<section class="slide provoc" data-act="5">
+  <div class="slide-content">
+    <div class="reveal act-label">ATO 5 · Síntese</div>
+    <h2 class="reveal h2">Engenharia de Software é tudo que acontece <span style="color:var(--accent-dark);">antes</span> do código.</h2>
+    <div class="journey reveal mt">
+      <div class="journey-step"><span class="js-icon">📋</span><span class="js-label">Requisitos</span><span class="js-sub">o que fazer</span></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-step"><span class="js-icon">🎭</span><span class="js-label">Caso de Uso</span><span class="js-sub">quem faz o quê</span></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-step"><span class="js-icon">💡</span><span class="js-label">Design Thinking</span><span class="js-sub">problema certo</span></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-step"><span class="js-icon">📄</span><span class="js-label">PRD</span><span class="js-sub">documenta a dor</span></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-step"><span class="js-icon">📱</span><span class="js-label">Protótipo</span><span class="js-sub">valida rápido</span></div>
+      <div class="journey-arrow">→</div>
+      <div class="journey-step highlight"><span class="js-icon">💻</span><span class="js-label">Código</span><span class="js-sub">por último</span></div>
+    </div>
+    <p class="reveal small caption mt">Prof. Ithalo Azevedo · Engenharia de Software 2026/1 · TEI 162</p>
+  </div>
+</section>
+
+<!-- SLIDE 27: Impacto — white + tipografia máxima -->
+<section class="slide light" data-act="5">
+  <div class="slide-content hero-provoc">
+    <blockquote class="reveal" style="font-size:clamp(2.2rem,5.5vw,5rem);font-weight:900;color:#0F172A;line-height:1.0;letter-spacing:-0.025em;max-width:17ch;">
+      "O engenheiro ruim começa a codar no <span style="color:var(--red);">dia&thinsp;1</span>."
+    </blockquote>
+    <blockquote class="reveal mt" style="font-size:clamp(2.2rem,5.5vw,5rem);font-weight:900;color:#0F172A;line-height:1.0;letter-spacing:-0.025em;max-width:20ch;">
+      "O engenheiro bom ainda está <span style="color:var(--accent-dark);">desenhando</span> no dia&thinsp;5."
+    </blockquote>
+  </div>
+</section>
+
+<!-- SLIDE 28: Gancho próxima aula -->
+<section class="slide provoc" data-act="5">
+  <div class="slide-content hero-provoc">
+    <div class="reveal act-label">Semana que vem · 17/abr</div>
+    <h2 class="reveal h2" style="color:var(--text-primary);">
+      Você modelou <span style="color:var(--accent-dark);">quem faz o quê</span> com o Caso de Uso.
+    </h2>
+    <h2 class="reveal h2 mt muted" style="font-weight:300;">Próxima aula: como o sistema age <em>internamente</em>.</h2>
+    <div class="flex reveal mt" style="gap:clamp(0.65rem,1.3vw,1.1rem);flex-wrap:wrap;margin-top:var(--content-gap);">
+      <div style="flex:1;min-width:clamp(140px,20vw,220px);background:white;border:1.5px solid var(--border-blue);border-radius:10px;padding:clamp(0.65rem,1.3vw,1.1rem);text-align:center;">
+        <div class="small bold accent-dark-text">Diagrama de Sequência</div>
+        <p class="small muted mt">Quem chama quem, em que ordem e quando</p>
+      </div>
+      <div style="flex:1;min-width:clamp(140px,20vw,220px);background:white;border:1.5px solid var(--border-blue);border-radius:10px;padding:clamp(0.65rem,1.3vw,1.1rem);text-align:center;">
+        <div class="small bold accent-dark-text">Diagrama de Atividades</div>
+        <p class="small muted mt">Fluxos de trabalho, decisões e paralelismo</p>
+      </div>
+    </div>
+    <p class="reveal body muted mt" style="font-style:italic;">Traga o seu projeto em mente — você vai modelar o comportamento dele.</p>
+  </div>
+</section>
+
+<script>
+/* === SLIDE PRESENTATION CONTROLLER === */
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.currentIndex = 0;
+    this.touchStartY = 0;
+    this.touchStartX = 0;
+
+    this.buildNavDots();
+    this.setupIntersectionObserver();
+    this.setupKeyboard();
+    this.setupTouch();
+    this.setupWheel();
+    setTimeout(() => this.activateSlide(0), 80);
+  }
+
+  buildNavDots() {
+    const nav = document.getElementById('navDots');
+    if (!nav) return;
+    this.slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'nav-dot';
+      btn.setAttribute('aria-label', `Slide ${i + 1}`);
+      btn.addEventListener('click', () => this.goTo(i));
+      nav.appendChild(btn);
+    });
+    this.dots = Array.from(nav.querySelectorAll('.nav-dot'));
+  }
+
+  setupIntersectionObserver() {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          const idx = this.slides.indexOf(entry.target);
+          if (idx !== -1) this.activateSlide(idx);
+        }
+      });
+    }, { threshold: 0.55 });
+    this.slides.forEach(s => io.observe(s));
+  }
+
+  activateSlide(idx) {
+    this.currentIndex = idx;
+    this.dots && this.dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    const bar = document.getElementById('progressBar');
+    if (bar) {
+      const pct = this.slides.length <= 1 ? 100 : (idx / (this.slides.length - 1)) * 100;
+      bar.style.width = pct + '%';
+    }
+  }
+
+  goTo(idx) {
+    if (idx < 0 || idx >= this.slides.length) return;
+    this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  setupKeyboard() {
+    document.addEventListener('keydown', e => {
+      if (['ArrowDown','ArrowRight','Space','PageDown'].includes(e.code)) { e.preventDefault(); this.goTo(this.currentIndex + 1); }
+      else if (['ArrowUp','ArrowLeft','PageUp'].includes(e.code)) { e.preventDefault(); this.goTo(this.currentIndex - 1); }
+      else if (e.code === 'Home') { e.preventDefault(); this.goTo(0); }
+      else if (e.code === 'End')  { e.preventDefault(); this.goTo(this.slides.length - 1); }
+    });
+  }
+
+  setupTouch() {
+    document.addEventListener('touchstart', e => { this.touchStartY = e.touches[0].clientY; this.touchStartX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const dy = this.touchStartY - e.changedTouches[0].clientY;
+      const dx = this.touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) this.goTo(this.currentIndex + (dy > 0 ? 1 : -1));
+    }, { passive: true });
+  }
+
+  setupWheel() {
+    let last = 0;
+    document.addEventListener('wheel', e => {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - last < 800) return;
+      last = now;
+      this.goTo(this.currentIndex + (e.deltaY > 0 ? 1 : -1));
+    }, { passive: false });
+  }
+}
+
+new SlidePresentation();
+</script>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard CSAT – ArcoPlus</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+  <style>
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #f1f5f9; }
+    .tab-btn { transition: all .2s; }
+    .tab-btn.active { background: #fff; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+    .tab-btn:not(.active) { color: #94a3b8; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .badge-high   { background: #fee2e2; color: #dc2626; }
+    .badge-medium { background: #fef9c3; color: #ca8a04; }
+    .badge-low    { background: #dcfce7; color: #16a34a; }
+    .badge-resolved { background: #e0e7ff; color: #4338ca; }
+    .metric-main  { font-size: 2.25rem; font-weight: 700; line-height: 1.1; }
+    .metric-label { font-size: 0.78rem; color: #64748b; margin-top: 2px; }
+    .section-title { font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+                     letter-spacing: .06em; color: #94a3b8; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 10px 12px; background: #f8fafc;
+         color: #64748b; font-weight: 600; font-size: .78rem; text-transform: uppercase;
+         letter-spacing: .04em; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    .csat-bar { height: 6px; border-radius: 3px; background: #e2e8f0; overflow: hidden; }
+    .csat-fill { height: 100%; border-radius: 3px; }
+    .comment-card { border-left: 3px solid #f87171; background: #fff7f7;
+                    padding: 12px 14px; border-radius: 0 8px 8px 0; margin-bottom: 8px; }
+    .comment-card .nota { font-size: 0.75rem; font-weight: 600; color: #dc2626; margin-bottom: 4px; }
+    .coming-soon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                   color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.78rem;
+                   font-weight: 600; display: inline-block; }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     DADOS DO DASHBOARD — ATUALIZADO PELO AGENTE DIARIAMENTE
+     Para atualizar: substitua o objeto DASHBOARD_DATA abaixo
+     ============================================================ -->
+<script id="dashboard-data">
+const DASHBOARD_DATA = {
+  geradoEm: "22/04/2026 às 10:30",
+
+  desafiei: {
+    satisfacao: 74.2,
+    csat: 83.9,
+    total: 31,
+    taxaConclusao: 74.2,
+    scoreRelevancia: 4.8,
+    porEscola: [
+      { id: "20949247", respostas: 1, satisfacao: 0.0,   csat: 0.0   },
+      { id: "3a712ac2", respostas: 2, satisfacao: 0.0,   csat: 0.0   },
+      { id: "956d48b8", respostas: 1, satisfacao: 0.0,   csat: 0.0   },
+      { id: "334abd22", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "34de8f95", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "799905d9", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "b2342e0a", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "75749d1e", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "3a5e2f1e", respostas: 2, satisfacao: 100.0, csat: 100.0 },
+      { id: "0ea39f14", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "d4cdf764", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "a9f162bf", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "58931c13", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "abbff4ee", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "2ea22b15", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "9adc774c", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "132862ef", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "9e38b0ec", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "b60c4046", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "a0e7adbf", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "c524c49f", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "97ed7f11", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "35be2a40", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "e93285db", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "a8b8b4ce", respostas: 1, satisfacao: 100.0, csat: 100.0 }
+    ],
+    comentariosCriticos: [
+      {
+        nota: 3,
+        sentimos: null,
+        texto: null
+      },
+      {
+        nota: 3,
+        sentimos: null,
+        texto: "Que houvesse notificações de alertas para os alunos nas fases"
+      },
+      {
+        nota: 3,
+        sentimos: "FORMAÇÃO PARA NOVOS PROFESSORES.",
+        texto: "DEIXAR MAIS CLARA AS INFORMAÇÕES SOBRE AS ATIVIDADES PROPOSTAS"
+      },
+      {
+        nota: 3,
+        sentimos: "FORMAÇÃO",
+        texto: "MAIS FORMAÇÃO"
+      },
+      {
+        nota: 3,
+        sentimos: null,
+        texto: null
+      }
+    ]
+  },
+
+  hackanav: {
+    satisfacao: 59.4,
+    csat: 90.6,
+    total: 32,
+    dimensoes: {
+      apropriacaoMaterial:    2.6,
+      autonomiaTecnologica:   2.8,
+      depuracaoResolucao:     2.0,
+      fluenciaTecnica:        2.3,
+      conscienciaEtica:       2.4,
+      integracaoBNCC:         2.6
+    },
+    porEscola: [
+      { id: "081f0a95", respostas: 1, satisfacao: 0.0,   csat: 0.0   },
+      { id: "78379d14", respostas: 1, satisfacao: 0.0,   csat: 0.0   },
+      { id: "9f0f0f10", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "70c7aa74", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "694ed219", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "90453383", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "bd96b709", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "19bc4588", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "22090422", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "b60c4046", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "bbf7bf8a", respostas: 1, satisfacao: 0.0,   csat: 100.0 },
+      { id: "c9ee24f4", respostas: 2, satisfacao: 50.0,  csat: 100.0 },
+      { id: "c8b7e8c9", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "8a03e0a7", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "984dc626", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "5dcf267d", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "fdf4e3d8", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "776c818e", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "b4a94b2c", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "f0b38479", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "7f3fd8aa", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "c7bd5982", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "65cecb66", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "b21dcca5", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "0a46696a", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "44a676e4", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "b31c7ad5", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "fd684099", respostas: 1, satisfacao: 100.0, csat: 100.0 },
+      { id: "b39d9a0f", respostas: 1, satisfacao: 100.0, csat: 100.0 }
+    ],
+    comentariosCriticos: [
+      {
+        nota: 1,
+        sentimos: "abordagem pouco atraente.",
+        texto: "trabalhar mais robotica, produções mais atraentes e que despertem o desejo de participar da aula"
+      },
+      {
+        nota: 2,
+        sentimos: null,
+        texto: null
+      },
+      {
+        nota: 3,
+        sentimos: null,
+        texto: "Apenas queria a opção de poder adicionar mais membros nos grupos"
+      }
+    ]
+  },
+
+  sustentacao: {
+    periodoInicio: "15/04/2026",
+    periodoFim:    "22/04/2026",
+    bugs: [
+      {
+        criticidade: "alta",
+        titulo: "Quantidade divergente de alunos nas turmas EI",
+        descricao: "Divergência na quantidade de alunos entre as turmas da EI e do Positivo. Em várias turmas da escola CENTRO EDUCACIONAL PEQUENO APRENDIZ (ID.04524-RJ/521439), parte dos alunos não está sendo exibida na EI, impedindo inscrições no DesafiEI. Priorizado como P0.",
+        status: "em investigação",
+        dataDeteccao: "20/04/2026",
+        dataResolucao: null,
+        frequencia: "Ao menos 1 escola confirmada (Linear CANPLUS-661)"
+      },
+      {
+        criticidade: "media",
+        titulo: "Certificado de carga horária total com valor incorreto (Tecer)",
+        descricao: "O certificado de horas totais do curso SAÚDE SOCIAL: A IMPORTÂNCIA DAS CONEXÕES NA ESCOLA (Tecer) está com carga horária quebrada (1.333h). Certificados individuais gerados com 2h em vez do valor correto. Afeta escola Colégio Santa Monica Pelotas.",
+        status: "aberto",
+        dataDeteccao: "22/04/2026",
+        dataResolucao: null,
+        frequencia: "1 escola reportada"
+      }
+    ],
+    discussoes: [
+      {
+        criticidade: "alta",
+        topico: "Inscrições bloqueadas no DesafiEI por divergência de alunos (P0)",
+        resumo: "Bug de sincronização EI/Positivo impede escola de realizar inscrições dos alunos no DesafiEI. Escalado como P0 com Gustavo Carletto responsável pela atualização. Linear CANPLUS-661 aberto para rastreamento."
+      },
+      {
+        criticidade: "media",
+        topico: "Certificados do Tecer com carga horária errada",
+        resumo: "Curso 'Saúde Social' no Tecer exibe carga horária quebrada (1.333h) e gera certificados individuais com 2h incorretas. Bug reportado via bot de triagem e encaminhado ao PM e DEV."
+      },
+      {
+        criticidade: "baixa",
+        topico: "Criação manual de escola na BU EI para demonstração Bett",
+        resumo: "Botão de criação de escola na BU EI inacessível via Cross. Escola Bett2026 (ID: 7d80582d) criada via processo manual pelo time de dados para demonstrações na Bett. Sincronização confirmada."
+      }
+    ],
+    sugestoes: [
+      "Corrigir urgentemente a sincronização de alunos entre EI e Positivo — bug P0 ativo está bloqueando inscrições de escolas no DesafiEI.",
+      "Implementar notificações e alertas automáticos para alunos nas fases do DesafiEI — demanda recorrente nos comentários críticos dos formulários.",
+      "Corrigir o cálculo de carga horária nos certificados do Tecer para evitar emissão de documentos com valores incorretos.",
+      "Adicionar filtro de alunos por turma (não apenas por ano) na inscrição do DesafiEI, e disponibilizar tutorial passo-a-passo e modelo demonstrativo para professores novos.",
+      "Criar material de formação dedicado para onboarding de professores no HackaNAV — abordagem atual percebida como pouco atraente; conteúdo de robótica e produções práticas foram citados como melhorias."
+    ]
+  }
+};
+</script>
+<!-- ============================================================
+     FIM DOS DADOS
+     ============================================================ -->
+
+<!-- HEADER -->
+<header style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); padding: 20px 32px;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="color: #94a3b8; font-size: 0.75rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;">ArcoPlus · Produto</div>
+      <h1 style="color: #fff; font-size: 1.5rem; font-weight: 700; margin: 4px 0 0;">Dashboard CSAT</h1>
+    </div>
+    <div style="text-align: right;">
+      <div style="color: #64748b; font-size: 0.72rem; margin-bottom: 2px;">Última atualização</div>
+      <div id="last-updated" style="color: #94a3b8; font-size: 0.82rem; font-weight: 500;">—</div>
+    </div>
+  </div>
+</header>
+
+<!-- TAB NAV -->
+<div style="background: #fff; border-bottom: 1px solid #e2e8f0;">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 32px;">
+    <nav style="display: flex; gap: 4px; padding: 8px 0;">
+      <button class="tab-btn active" onclick="switchTab('desafiei', this)"
+        style="padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.875rem; background: #f1f5f9;">
+        DesafiEI
+      </button>
+      <button class="tab-btn" onclick="switchTab('hackanav', this)"
+        style="padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.875rem; background: transparent;">
+        HackaNAV
+      </button>
+      <button class="tab-btn" onclick="switchTab('geral', this)"
+        style="padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.875rem; background: transparent;">
+        CSAT Geral
+      </button>
+      <button class="tab-btn" onclick="switchTab('sustentacao', this)"
+        style="padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.875rem; background: transparent;">
+        Sustentação
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main style="max-width: 1200px; margin: 0 auto; padding: 32px;">
+
+  <!-- =================== ABA DESAFIEI =================== -->
+  <section id="tab-desafiei">
+
+    <div class="section-title">Métricas Principais</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+      <div class="card">
+        <div class="metric-label">Satisfação <span style="font-size:.7rem;">(nota 5 / total)</span></div>
+        <div class="metric-main" id="dei-satisfacao" style="color: #0f172a;">—</div>
+        <div class="metric-label">% de notas máximas</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">CSAT <span style="font-size:.7rem;">(notas 4+5 / total)</span></div>
+        <div class="metric-main" id="dei-csat" style="color: #0f172a;">—</div>
+        <div class="metric-label">% de respostas positivas</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">Total de Respostas</div>
+        <div class="metric-main" id="dei-total" style="color: #0f172a;">—</div>
+        <div class="metric-label">professores respondentes</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 28px;">
+      <div class="card">
+        <div class="metric-label">Taxa de Conclusão de Inscrição</div>
+        <div class="metric-main" id="dei-conclusao" style="color: #0f172a;">—</div>
+        <div class="metric-label">% que concluíram sem ajuda</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">Score Médio de Relevância Pedagógica</div>
+        <div style="display: flex; align-items: baseline; gap: 6px;">
+          <div class="metric-main" id="dei-relevancia" style="color: #0f172a;">—</div>
+          <div style="color: #94a3b8; font-size: 1rem; font-weight: 500;">/ 5</div>
+        </div>
+        <div class="metric-label">média das notas de relevância</div>
+      </div>
+    </div>
+
+    <div class="section-title">CSAT por Escola</div>
+    <div class="card" style="margin-bottom: 28px; padding: 0; overflow: hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th>Escola (ID)</th>
+            <th style="text-align:center;">Respostas</th>
+            <th>Satisfação</th>
+            <th>CSAT</th>
+          </tr>
+        </thead>
+        <tbody id="dei-escola-table"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Comentários Críticos <span style="color:#f87171;">(nota ≤ 3)</span></div>
+    <div id="dei-comentarios"></div>
+
+  </section>
+
+  <!-- =================== ABA HACKANAV =================== -->
+  <section id="tab-hackanav" style="display:none;">
+
+    <div class="section-title">Métricas Principais</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+      <div class="card">
+        <div class="metric-label">Satisfação <span style="font-size:.7rem;">(nota 5 / total)</span></div>
+        <div class="metric-main" id="nav-satisfacao" style="color: #0f172a;">—</div>
+        <div class="metric-label">% de notas máximas</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">CSAT <span style="font-size:.7rem;">(notas 4+5 / total)</span></div>
+        <div class="metric-main" id="nav-csat" style="color: #0f172a;">—</div>
+        <div class="metric-label">% de respostas positivas</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">Total de Respostas</div>
+        <div class="metric-main" id="nav-total" style="color: #0f172a;">—</div>
+        <div class="metric-label">professores respondentes</div>
+      </div>
+    </div>
+
+    <div class="section-title">Dimensões de Competência (Média 1–5)</div>
+    <div class="card" style="margin-bottom: 28px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+        <canvas id="nav-radar" style="max-height: 320px;"></canvas>
+        <div id="nav-dimensoes-list" style="padding-top: 16px;"></div>
+      </div>
+    </div>
+
+    <div class="section-title">CSAT por Escola</div>
+    <div class="card" style="margin-bottom: 28px; padding: 0; overflow: hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th>Escola (ID)</th>
+            <th style="text-align:center;">Respostas</th>
+            <th>Satisfação</th>
+            <th>CSAT</th>
+          </tr>
+        </thead>
+        <tbody id="nav-escola-table"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Comentários Críticos <span style="color:#f87171;">(nota ≤ 3)</span></div>
+    <div id="nav-comentarios"></div>
+
+  </section>
+
+  <!-- =================== ABA CSAT GERAL =================== -->
+  <section id="tab-geral" style="display:none;">
+
+    <div style="text-align: center; padding: 16px 0 28px;">
+      <span class="coming-soon">Em breve</span>
+    </div>
+
+    <div class="section-title">Métricas Principais</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+      <div class="card" style="opacity:.5;">
+        <div class="metric-label">Satisfação</div>
+        <div class="metric-main" style="color: #cbd5e1;">—</div>
+        <div class="metric-label">aguardando dados</div>
+      </div>
+      <div class="card" style="opacity:.5;">
+        <div class="metric-label">CSAT</div>
+        <div class="metric-main" style="color: #cbd5e1;">—</div>
+        <div class="metric-label">aguardando dados</div>
+      </div>
+      <div class="card" style="opacity:.5;">
+        <div class="metric-label">Total de Respostas</div>
+        <div class="metric-main" style="color: #cbd5e1;">—</div>
+        <div class="metric-label">aguardando dados</div>
+      </div>
+    </div>
+
+    <div class="card" style="border: 2px dashed #e2e8f0; box-shadow: none; text-align: center; padding: 40px;">
+      <div style="font-size: 2rem; margin-bottom: 12px;">🚧</div>
+      <div style="font-weight: 600; color: #334155; margin-bottom: 8px;">Formulário em construção</div>
+      <p style="color: #64748b; font-size: 0.875rem; max-width: 440px; margin: 0 auto;">
+        Esta aba medirá a satisfação geral com o portal ArcoPlus. O formulário está em construção e será conectado assim que disponível.
+      </p>
+      <!-- TODO: conectar Google Sheet do ArcoPlus aqui -->
+    </div>
+
+  </section>
+
+  <!-- =================== ABA SUSTENTAÇÃO =================== -->
+  <section id="tab-sustentacao" style="display:none;">
+
+    <div class="section-title">Bugs Identificados <span style="font-size:0.78rem; color:#94a3b8;">(#arcoplus-alerts + #arcoplus-socioemocional-produto-ops)</span></div>
+    <div id="sust-bugs" style="margin-bottom: 28px;"></div>
+
+    <div class="section-title">Discussões da Equipe <span style="font-size:0.78rem; color:#94a3b8;">(#arcoplus-socioemocional-produto-ops)</span></div>
+    <div id="sust-discussoes" style="margin-bottom: 28px;"></div>
+
+    <div class="section-title">Sugestões de Melhoria <span style="font-size:0.78rem; color:#94a3b8;">(geradas pelo agente)</span></div>
+    <div id="sust-sugestoes" style="margin-bottom: 32px;"></div>
+
+    <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; display: flex; justify-content: space-between;">
+      <div style="color: #94a3b8; font-size: 0.78rem;">Análise gerada em <span id="sust-timestamp">—</span></div>
+      <div style="color: #94a3b8; font-size: 0.78rem;">Período analisado: <span id="sust-periodo">—</span></div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+// ========================
+// TAB SWITCHING
+// ========================
+function switchTab(name, btn) {
+  document.querySelectorAll('section[id^="tab-"]').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = 'transparent';
+  });
+  document.getElementById('tab-' + name).style.display = '';
+  btn.classList.add('active');
+  btn.style.background = '#f1f5f9';
+}
+
+// ========================
+// UTILS
+// ========================
+function fmt(v, decimals = 1) {
+  if (v === null || v === undefined) return '—';
+  return Number(v).toFixed(decimals) + '%';
+}
+function fmtNum(v, decimals = 1) {
+  if (v === null || v === undefined) return '—';
+  return Number(v).toFixed(decimals);
+}
+function csatColor(v) {
+  if (v >= 80) return '#16a34a';
+  if (v >= 60) return '#ca8a04';
+  return '#dc2626';
+}
+function csatFillColor(v) {
+  if (v >= 80) return '#4ade80';
+  if (v >= 60) return '#fde047';
+  return '#f87171';
+}
+
+// ========================
+// RENDER ESCOLA TABLE
+// ========================
+function renderEscolaTable(tbodyId, data) {
+  const tbody = document.getElementById(tbodyId);
+  // Sort by CSAT asc (worst first)
+  const sorted = [...data].sort((a, b) => a.csat - b.csat);
+  tbody.innerHTML = sorted.map(row => {
+    const satColor  = csatColor(row.satisfacao);
+    const csatColor2 = csatColor(row.csat);
+    return `
+      <tr>
+        <td style="font-family: monospace; font-size:.82rem; color:#475569;">${row.id}</td>
+        <td style="text-align:center; font-weight:600;">${row.respostas}</td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="csat-bar" style="width:80px;">
+              <div class="csat-fill" style="width:${row.satisfacao}%; background:${csatFillColor(row.satisfacao)};"></div>
+            </div>
+            <span style="color:${satColor}; font-weight:600; font-size:.875rem;">${fmtNum(row.satisfacao)}%</span>
+          </div>
+        </td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="csat-bar" style="width:80px;">
+              <div class="csat-fill" style="width:${row.csat}%; background:${csatFillColor(row.csat)};"></div>
+            </div>
+            <span style="color:${csatColor2}; font-weight:600; font-size:.875rem;">${fmtNum(row.csat)}%</span>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ========================
+// RENDER COMMENTS
+// ========================
+function renderComentarios(containerId, comentarios) {
+  const el = document.getElementById(containerId);
+  if (!comentarios || comentarios.length === 0) {
+    el.innerHTML = '<div style="color:#94a3b8; font-size:.875rem; padding: 12px 0;">Nenhum comentário crítico no período.</div>';
+    return;
+  }
+  el.innerHTML = comentarios.map(c => `
+    <div class="comment-card">
+      <div class="nota">⭐ Nota ${c.nota}${c.sentimos ? ' — ' + c.sentimos : ''}</div>
+      <div style="color:#374151; font-size:.875rem; line-height:1.55;">${c.texto || '—'}</div>
+    </div>
+  `).join('');
+}
+
+// ========================
+// RENDER DESAFIEI TAB
+// ========================
+function renderDesafiei(d) {
+  document.getElementById('dei-satisfacao').textContent = d.satisfacao !== null ? fmtNum(d.satisfacao) + '%' : '—';
+  document.getElementById('dei-csat').textContent       = d.csat !== null ? fmtNum(d.csat) + '%' : '—';
+  document.getElementById('dei-total').textContent      = d.total ?? '—';
+  document.getElementById('dei-conclusao').textContent  = d.taxaConclusao !== null ? fmtNum(d.taxaConclusao) + '%' : '—';
+  document.getElementById('dei-relevancia').textContent = d.scoreRelevancia !== null ? fmtNum(d.scoreRelevancia) : '—';
+
+  // Color metric mains
+  document.getElementById('dei-satisfacao').style.color = csatColor(d.satisfacao);
+  document.getElementById('dei-csat').style.color       = csatColor(d.csat);
+  document.getElementById('dei-conclusao').style.color  = csatColor(d.taxaConclusao);
+
+  renderEscolaTable('dei-escola-table', d.porEscola);
+  renderComentarios('dei-comentarios', d.comentariosCriticos);
+}
+
+// ========================
+// RENDER HACKANAV TAB
+// ========================
+function renderHackanav(d) {
+  document.getElementById('nav-satisfacao').textContent = d.satisfacao !== null ? fmtNum(d.satisfacao) + '%' : '—';
+  document.getElementById('nav-csat').textContent       = d.csat !== null ? fmtNum(d.csat) + '%' : '—';
+  document.getElementById('nav-total').textContent      = d.total ?? '—';
+
+  document.getElementById('nav-satisfacao').style.color = csatColor(d.satisfacao);
+  document.getElementById('nav-csat').style.color       = csatColor(d.csat);
+
+  // Radar chart
+  const dim = d.dimensoes;
+  const labels = [
+    'Apropriação\ndo Material',
+    'Autonomia\nTecnológica',
+    'Depuração e\nResolução',
+    'Fluência\nTécnica',
+    'Consciência\nÉtica',
+    'Integração\ncom BNCC'
+  ];
+  const values = [
+    dim.apropriacaoMaterial,
+    dim.autonomiaTecnologica,
+    dim.depuracaoResolucao,
+    dim.fluenciaTecnica,
+    dim.conscienciaEtica,
+    dim.integracaoBNCC
+  ];
+  new Chart(document.getElementById('nav-radar'), {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Score médio (1–5)',
+        data: values,
+        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+        borderColor: '#6366f1',
+        borderWidth: 2,
+        pointBackgroundColor: '#6366f1',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: 0,
+          max: 5,
+          ticks: { stepSize: 1, font: { size: 10 } },
+          pointLabels: { font: { size: 10 } }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  // Dimensões list
+  const dimNames = {
+    apropriacaoMaterial:  'Apropriação do Material',
+    autonomiaTecnologica: 'Autonomia Tecnológica',
+    depuracaoResolucao:   'Depuração e Resolução de Problemas',
+    fluenciaTecnica:      'Fluência Técnica',
+    conscienciaEtica:     'Consciência Ética',
+    integracaoBNCC:       'Integração com BNCC'
+  };
+  const listEl = document.getElementById('nav-dimensoes-list');
+  listEl.innerHTML = Object.entries(dim).map(([key, val]) => {
+    const pct = (val / 5) * 100;
+    const color = val >= 4 ? '#16a34a' : val >= 3 ? '#ca8a04' : '#dc2626';
+    return `
+      <div style="margin-bottom: 14px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="font-size:.82rem; color:#374151;">${dimNames[key]}</span>
+          <span style="font-size:.82rem; font-weight:700; color:${color};">${fmtNum(val, 1)}</span>
+        </div>
+        <div class="csat-bar" style="width:100%;">
+          <div class="csat-fill" style="width:${pct}%; background:${csatFillColor(pct)};"></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  renderEscolaTable('nav-escola-table', d.porEscola);
+  renderComentarios('nav-comentarios', d.comentariosCriticos);
+}
+
+// ========================
+// RENDER SUSTENTAÇÃO
+// ========================
+function renderSustentacao(s) {
+  const badgeClass = { alta: 'badge-high', media: 'badge-medium', baixa: 'badge-low' };
+  const badgeLabel = { alta: '🔴 Alta', media: '🟡 Média', baixa: '🟢 Baixa' };
+
+  // Bugs
+  const bugsEl = document.getElementById('sust-bugs');
+  if (!s.bugs || s.bugs.length === 0) {
+    bugsEl.innerHTML = '<div style="color:#94a3b8; font-size:.875rem;">Nenhum bug registrado no período.</div>';
+  } else {
+    bugsEl.innerHTML = s.bugs.map(b => {
+      const statusColor = b.status === 'resolvido' ? '#4338ca' : b.status === 'em investigação' ? '#ca8a04' : '#dc2626';
+      const statusBg    = b.status === 'resolvido' ? '#e0e7ff' : b.status === 'em investigação' ? '#fef9c3' : '#fee2e2';
+      return `
+        <div class="card" style="margin-bottom:12px; border-left: 4px solid ${b.criticidade === 'alta' ? '#dc2626' : b.criticidade === 'media' ? '#ca8a04' : '#16a34a'};">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="badge-${b.criticidade === 'media' ? 'medium' : b.criticidade}" style="padding:2px 8px; border-radius:12px; font-size:.72rem; font-weight:700;">${badgeLabel[b.criticidade] || b.criticidade}</span>
+              <span style="background:${statusBg}; color:${statusColor}; padding:2px 8px; border-radius:12px; font-size:.72rem; font-weight:700; text-transform:capitalize;">${b.status}</span>
+              ${b.frequencia ? `<span style="color:#94a3b8; font-size:.75rem;">${b.frequencia}</span>` : ''}
+            </div>
+            <div style="color:#94a3b8; font-size:.72rem; white-space:nowrap;">Detectado: ${b.dataDeteccao}${b.dataResolucao ? ' · Fix: ' + b.dataResolucao : ''}</div>
+          </div>
+          <div style="font-weight:600; color:#1e293b; margin-bottom:6px; font-size:.9rem;">${b.titulo}</div>
+          <div style="color:#64748b; font-size:.82rem; line-height:1.55;">${b.descricao}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // Discussões
+  const discEl = document.getElementById('sust-discussoes');
+  if (!s.discussoes || s.discussoes.length === 0) {
+    discEl.innerHTML = '<div style="color:#94a3b8; font-size:.875rem;">Nenhuma discussão relevante no período.</div>';
+  } else {
+    discEl.innerHTML = s.discussoes.map(d => `
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+          <span class="badge-${d.criticidade === 'media' ? 'medium' : d.criticidade === 'baixa' ? 'low' : 'high'}" style="padding:2px 8px; border-radius:12px; font-size:.72rem; font-weight:700;">${badgeLabel[d.criticidade] || d.criticidade}</span>
+          <span style="font-weight:600; color:#1e293b; font-size:.9rem;">${d.topico}</span>
+        </div>
+        <div style="color:#64748b; font-size:.82rem; line-height:1.55;">${d.resumo}</div>
+      </div>`).join('');
+  }
+
+  // Sugestões
+  const sugEl = document.getElementById('sust-sugestoes');
+  if (!s.sugestoes || s.sugestoes.length === 0) {
+    sugEl.innerHTML = '<div style="color:#94a3b8; font-size:.875rem;">Nenhuma sugestão no período.</div>';
+  } else {
+    sugEl.innerHTML = `<div class="card" style="padding: 0; overflow:hidden;">` +
+      s.sugestoes.map((sug, i) => `
+        <div style="display:flex; gap:12px; padding:14px 16px; border-bottom:${i < s.sugestoes.length - 1 ? '1px solid #f1f5f9' : 'none'};">
+          <div style="width:24px; height:24px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; color:#6366f1; flex-shrink:0; margin-top:1px;">${i + 1}</div>
+          <div style="color:#374151; font-size:.875rem; line-height:1.55;">${sug}</div>
+        </div>`).join('') + '</div>';
+  }
+
+  // Footer
+  document.getElementById('sust-timestamp').textContent = DASHBOARD_DATA.geradoEm;
+  document.getElementById('sust-periodo').textContent   = `${s.periodoInicio} – ${s.periodoFim}`;
+}
+
+// ========================
+// INIT
+// ========================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('last-updated').textContent = DASHBOARD_DATA.geradoEm;
+  renderDesafiei(DASHBOARD_DATA.desafiei);
+  renderHackanav(DASHBOARD_DATA.hackanav);
+  renderSustentacao(DASHBOARD_DATA.sustentacao);
+});
+</script>
+</body>
+</html>
