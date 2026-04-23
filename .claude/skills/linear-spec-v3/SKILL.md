@@ -21,6 +21,7 @@ Assistente especializado em ajudar times de Produto (GPMs, PMs) a estruturar, ev
 | `create` | `/linear-spec create` | Cria Iniciativa, Projeto de Discovery, Projeto de Delivery ou Issue |
 | `promote` | `/linear-spec promote [ID ou nome]` | Converte Projeto de Discovery em novo Projeto de Delivery |
 | `validate` | `/linear-spec validate [ID]` | Valida item existente e sugere melhorias |
+| `update` | `/linear-spec update [ID ou nome]` | Posta Activity Update em um projeto ou iniciativa existente |
 | `help` | `/linear-spec help` | Guia de uso, hierarquia, exemplos |
 
 Se nenhum comando for especificado, analise a mensagem do usuário para inferir a intenção antes de perguntar:
@@ -30,10 +31,15 @@ Se nenhum comando for especificado, analise a mensagem do usuário para inferir 
 | "criar", "nova iniciativa", "novo projeto", "novo bug", "quero estruturar", etc | CREATE |
 | "promover", "discovery concluído", "avançar para delivery", "virar delivery", "transformar projeto", "evoluir para delivery", etc | PROMOTE |
 | "validar", "revisar", "como está", "está bem escrito" + referência a item | VALIDATE |
+| "update", "atualizar", "postar update", "comunicar", "passou por", "foi aprovado", "entrou em", "está pronto para", "bug encontrado", "faça um update" + referência a item | UPDATE |
 | "ajuda", "como usar", "o que é", "não sei por onde começar" | HELP |
 
 Se a intenção for clara → execute o fluxo correspondente diretamente.
-Se ambígua → pergunte: *"Quer criar um item novo, promover um Discovery, validar algo existente ou precisa de ajuda com o fluxo?"*
+Se ambígua → pergunte: *"Quer criar um item novo, promover um Discovery, postar um update, validar algo existente ou precisa de ajuda com o fluxo?"*
+
+**Caso ambíguo específico — UPDATE vs. PROMOTE:** Mensagens como "discovery concluído, faça um update" ou "o discovery acabou" podem indicar tanto PROMOTE (converter em Delivery) quanto UPDATE (apenas comunicar o encerramento). Nesses casos, sempre confirme antes de executar:
+
+> "Quer promover este Discovery para um novo Projeto de Delivery, ou apenas postar um update comunicando que ele foi concluído?"
 
 ## Convenção de Idioma
 
@@ -428,6 +434,116 @@ Se houver melhorias sugeridas, pergunte se deve postar um Activity Update com o 
 
 ---
 
+## Fluxo: UPDATE
+
+`/linear-spec update [ID ou nome]`
+
+Posta um Activity Update narrativo em um projeto ou iniciativa existente, comunicando um momento específico do ciclo de vida.
+
+### Passo 1: Identificar o item e o momento
+
+**Se o ID ou nome foi fornecido:** busque o item no Linear via conector.
+**Se não foi fornecido:** pergunte qual projeto ou iniciativa deve receber o update.
+
+**Se o momento já estiver claro na mensagem do usuário** (ex: "passou por refinamento e foi aprovado para delivery"), use-o diretamente — não peça confirmação do momento, apenas confirme o rascunho gerado.
+
+**Se o momento não estiver claro**, apresente a lista e peça para escolher:
+
+> Qual momento você quer comunicar?
+> 1. Pronto para refinamento de produto
+> 2. Refinamento de produto finalizado — aprovado para delivery
+> 3. Discovery finalizado (sem promote)
+> 4. Entrou para delivery
+> 5. Bug encontrado em produção
+> 6. Outro (descreva em uma frase)
+
+### Passo 2: Gerar rascunho narrativo
+
+Use o formato padrão: **contexto → decisão/fato → próximo passo**.
+
+Adapte o tom ao momento:
+
+**Pronto para refinamento de produto**
+```
+[Nome do Projeto] — pronto para refinamento
+
+[1 parágrafo: o que foi concluído que viabiliza o refinamento — discovery, validação, alinhamento com stakeholders]
+
+Próximo passo: refinamento de produto com [time/pessoa] — [prazo estimado ou "a definir"].
+```
+
+**Refinamento de produto finalizado — aprovado para delivery**
+```
+Refinamento concluído. [Nome do Projeto] aprovado para delivery.
+
+[1 parágrafo: o que foi decidido no refinamento — escopo fechado, critérios validados, dependências resolvidas]
+
+Escopo aprovado:
+- [capacidade 1]
+- [capacidade N]
+
+Próximo passo: [refinamento técnico com engenharia / início do build / milestone 1].
+```
+
+**Discovery finalizado (sem promote)**
+```
+Discovery concluído. [O que foi validado — 1 frase].
+
+[1 parágrafo: direção definida, perguntas respondidas, decisões tomadas]
+
+Próximos passos: [criar Projeto de Delivery / refinamento / outra ação concreta].
+```
+
+**Entrou para delivery**
+```
+[Nome do Projeto] entrou para delivery — [Quarter ou período].
+
+[1 parágrafo: contexto do que será construído e por quê agora]
+
+Escopo do build:
+- [capacidade 1]
+- [capacidade N]
+
+Próximo passo: [milestone 1 ou ação concreta].
+```
+
+**Bug encontrado em produção**
+
+Este momento executa duas ações em sequência — criação das issues e postagem do update:
+
+**1. Criar Issues de Bug no Linear**
+
+Para cada bug mencionado pelo usuário, aplique o fluxo de CREATE (subtipo Bug) usando o template de Issue. Vincule cada issue ao projeto em questão. Pergunte apenas o que for bloqueante e ainda não estiver na mensagem do usuário.
+
+Após criar todas as issues, confirme os links gerados antes de passar para o update.
+
+**2. Postar o update narrativo**
+
+```
+[N] bug(s) identificado(s) em produção — [descrição curta do conjunto de problemas].
+
+[1 parágrafo: impacto observado, quem é afetado, contexto de quando foi identificado]
+
+Issues criadas:
+- [título do bug 1] → [link]
+- [título do bug N] → [link]
+
+Status atual: [em investigação / causa-raiz identificada / correção em andamento]
+Próximo passo: [ação imediata + prazo estimado].
+```
+
+**Outro (livre)**
+Gere um update narrativo baseado na descrição fornecida pelo usuário, seguindo o formato contexto → decisão/fato → próximo passo.
+
+### Passo 3: Confirmar destino e postar
+
+Apresente o rascunho e pergunte:
+> "Quer postar este update no projeto, na Iniciativa associada, ou nos dois?"
+
+Aguarde confirmação antes de executar. Use `save_status_update` vinculado ao projeto ou iniciativa correspondente.
+
+---
+
 ## Fluxo: HELP
 
 Exiba:
@@ -436,12 +552,14 @@ Exiba:
 2. **A regra de ouro de títulos** com exemplos bons e ruins.
 3. **Os anti-patterns mais comuns** (baseados em [references/anti-pattern.md](references/anti-pattern.md)).
 4. **Exemplos reais** de Iniciativa e Projeto de Delivery bem estruturados.
-5. **Fluxo Discovery → Delivery**: quando usar `promote` e o que ele faz.
-6. **Quando NÃO criar um Projeto**: Se o trabalho tem os três sinais abaixo, o item certo é uma Issue — não um Projeto:
+5. **Relação Discovery → Delivery**: Discovery não é pré-requisito obrigatório de Delivery. Use Discovery quando o escopo ainda não está fechado e há incertezas a resolver. Vá direto para Delivery quando o escopo já está claro e validado com stakeholders. Quando existir um Discovery prévio, use `promote` para converter — ele pré-preenche o Delivery com as decisões tomadas e vincula os dois projetos.
+6. **Quando NÃO criar um Projeto de Delivery**: Se o trabalho tem os três sinais abaixo, o item certo é uma Issue — não um Projeto de Delivery:
    - Cabe em 1-2 dias de trabalho de uma pessoa
    - Não tem fases nem paralelismo
    - Não envolve Designer nem múltiplos times
-7. **Lembrete de escopo**: este skill não cobre issues técnicas de engenharia — para isso, use `linear-issues`.
+   *(Esses sinais não se aplicam a Discovery — um Discovery pode ser pequeno e de uma pessoa só, e ainda assim fazer sentido como projeto.)*
+7. **Quando usar `validate`**: Use quando um item foi criado fora do skill, quando alguém pediu revisão da spec, ou quando o projeto já existe e o time quer garantir que está bem estruturado antes de avançar. O validate analisa título, vínculos, escopo e critérios de aceite — e sugere melhorias com justificativa.
+8. **Lembrete de escopo**: este skill não cobre issues técnicas de engenharia — para isso, use `linear-issues`.
 
 ---
 
