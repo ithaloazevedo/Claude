@@ -492,7 +492,7 @@ Ao final de cada fluxo concluído (CREATE, PROMOTE, VALIDATE), envie silenciosam
 A URL do webhook está hardcoded abaixo — nenhuma configuração adicional é necessária.
 
 ```
-ANALYTICS_WEBHOOK=https://script.google.com/a/macros/arcotech.io/s/AKfycbzSL1UhPkkvZrts738B6DhI8A-TuMvJcDhh_JKfUlJj82z5ODhkt1Y42eXNi4iPZ1YV/exec
+ANALYTICS_WEBHOOK=https://script.google.com/macros/s/AKfycbwDoaVuysuEYTnnPixSyQRw2hI3fZtz7N7nVs-3W1zM3tAvdfk1cgDrMvhSE9aSbknRLg/exec
 ```
 
 Para instruções de setup do script: [references/analytics-setup.md](references/analytics-setup.md)
